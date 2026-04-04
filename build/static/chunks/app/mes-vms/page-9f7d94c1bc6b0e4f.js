@@ -1,0 +1,1 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[253],{2267:(e,s,t)=>{Promise.resolve().then(t.bind(t,6797))},6797:(e,s,t)=>{"use strict";t.r(s),t.d(s,{default:()=>l});var i=t(5155);t(2115);let l=()=>(0,i.jsx)("div",{className:"pt-20 flex items-center justify-center",children:"Liste des vms"})}},e=>{e.O(0,[441,255,358],()=>e(e.s=2267)),_N_E=e.O()}]);

@@ -1,0 +1,152 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/dashboard/mes-vms/[vmid]",
+      "regex": "^/dashboard/mes\\-vms/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPvmid": "nxtPvmid"
+      },
+      "namedRegex": "^/dashboard/mes\\-vms/(?<nxtPvmid>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/admin/bibliotheque",
+      "regex": "^/admin/bibliotheque(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/bibliotheque(?:/)?$"
+    },
+    {
+      "page": "/admin/noeuds",
+      "regex": "^/admin/noeuds(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/noeuds(?:/)?$"
+    },
+    {
+      "page": "/admin/reservations",
+      "regex": "^/admin/reservations(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/reservations(?:/)?$"
+    },
+    {
+      "page": "/admin/utilisateurs",
+      "regex": "^/admin/utilisateurs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/utilisateurs(?:/)?$"
+    },
+    {
+      "page": "/connexion",
+      "regex": "^/connexion(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/connexion(?:/)?$"
+    },
+    {
+      "page": "/dashboad-admin",
+      "regex": "^/dashboad\\-admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboad\\-admin(?:/)?$"
+    },
+    {
+      "page": "/dashboard",
+      "regex": "^/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard(?:/)?$"
+    },
+    {
+      "page": "/dashboard/mes-vms",
+      "regex": "^/dashboard/mes\\-vms(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/mes\\-vms(?:/)?$"
+    },
+    {
+      "page": "/dashboard/profil",
+      "regex": "^/dashboard/profil(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/profil(?:/)?$"
+    },
+    {
+      "page": "/dashboard/reservations",
+      "regex": "^/dashboard/reservations(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/reservations(?:/)?$"
+    },
+    {
+      "page": "/dashboard/ssh",
+      "regex": "^/dashboard/ssh(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/ssh(?:/)?$"
+    },
+    {
+      "page": "/demande_compte",
+      "regex": "^/demande_compte(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/demande_compte(?:/)?$"
+    },
+    {
+      "page": "/mes-vms",
+      "regex": "^/mes\\-vms(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/mes\\-vms(?:/)?$"
+    },
+    {
+      "page": "/mon-profil-use",
+      "regex": "^/mon\\-profil\\-use(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/mon\\-profil\\-use(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

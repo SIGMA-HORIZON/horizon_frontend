@@ -1,0 +1,1 @@
+(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[198],{3586:(e,s,t)=>{"use strict";t.r(s),t.d(s,{default:()=>r});var l=t(5155);t(2115);let r=()=>(0,l.jsx)("div",{className:"pt-20 flex items-center justify-center",children:"Page de mon profil"})},6074:(e,s,t)=>{Promise.resolve().then(t.bind(t,3586))}},e=>{e.O(0,[441,255,358],()=>e(e.s=6074)),_N_E=e.O()}]);

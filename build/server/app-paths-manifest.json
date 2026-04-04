@@ -1,0 +1,20 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/connexion/page": "app/connexion/page.js",
+  "/dashboad-admin/page": "app/dashboad-admin/page.js",
+  "/demande_compte/page": "app/demande_compte/page.js",
+  "/mes-vms/page": "app/mes-vms/page.js",
+  "/mon-profil-use/page": "app/mon-profil-use/page.js",
+  "/page": "app/page.js",
+  "/admin/bibliotheque/page": "app/admin/bibliotheque/page.js",
+  "/admin/noeuds/page": "app/admin/noeuds/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/admin/reservations/page": "app/admin/reservations/page.js",
+  "/admin/utilisateurs/page": "app/admin/utilisateurs/page.js",
+  "/dashboard/mes-vms/[vmid]/page": "app/dashboard/mes-vms/[vmid]/page.js",
+  "/dashboard/mes-vms/page": "app/dashboard/mes-vms/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/profil/page": "app/dashboard/profil/page.js",
+  "/dashboard/reservations/page": "app/dashboard/reservations/page.js",
+  "/dashboard/ssh/page": "app/dashboard/ssh/page.js"
+}
