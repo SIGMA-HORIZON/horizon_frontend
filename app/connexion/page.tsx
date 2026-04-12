@@ -5,10 +5,34 @@ import '../home.css';
 import './connexion.css';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { authService } from '../services/auth.service';
 
 export default function Connexion() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({ identifier: '', password: '' });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await authService.login(formData.identifier, formData.password);
+      if (response.must_change_pwd) {
+        router.push('/connexion/change-password'); // Or just /dashboard if not yet implemented
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (err: any) {
+      console.error('Login error:', err);
+      setError(err.response?.data?.detail || 'Identifiants invalides ou erreur serveur.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="home-theme">
@@ -19,7 +43,7 @@ export default function Connexion() {
         href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap"
         rel="stylesheet"
       />
-      
+
       <div className="login-container">
         <div className="login-card">
           <div className="badge-secure">
@@ -43,19 +67,32 @@ export default function Connexion() {
             </div>
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); router.push('/dashboard'); }}>
+          {error && (
+            <div className="login-alert" style={{ background: 'rgba(255, 82, 82, 0.15)', borderColor: 'rgba(255, 82, 82, 0.3)', color: '#FF8A80', marginBottom: '1.5rem' }}>
+              <svg className="form-icon" style={{ color: '#FF5252' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+              <div>{error}</div>
+            </div>
+          )}
+
+          <form onSubmit={handleLogin}>
             <div className="form-group">
-              <label className="form-label">ADRESSE E-MAIL</label>
+              <label className="form-label">ADRESSE E-MAIL / USERNAME</label>
               <div className="input-wrapper">
                 <svg className="input-icon form-icon" viewBox="0 0 24 24">
                   <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                   <polyline points="22,6 12,13 2,6"></polyline>
                 </svg>
                 <input
-                  type="email"
+                  type="text"
                   className="form-input"
                   placeholder="jean.dupont@enspy.cm"
                   required
+                  value={formData.identifier}
+                  onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
                 />
               </div>
             </div>
@@ -72,6 +109,8 @@ export default function Connexion() {
                   className="form-input"
                   placeholder="Mot de passe provisoire"
                   required
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 />
                 <div
                   className="input-icon-right"
@@ -104,14 +143,21 @@ export default function Connexion() {
 
             <div className="divider">CONNEXION</div>
 
-            <button type="submit" className="login-btn-primary">
-              <svg className="form-icon" viewBox="0 0 24 24">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-              <span>Se connecter</span>
+            <button type="submit" className="login-btn-primary" disabled={loading}>
+              {loading ? (
+                <>Connexion en cours...</>
+              ) : (
+                <>
+                  <svg className="form-icon" viewBox="0 0 24 24">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                  </svg>
+                  <span>Se connecter</span>
+                </>
+              )}
             </button>
           </form>
+
 
           <div className="login-footer">
             Vous n'avez pas encore de compte ?

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
+import { authService } from '../services/auth.service';
 import './demande.css';
 
 export default function DemandeCompte() {
@@ -40,7 +41,7 @@ export default function DemandeCompte() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (formData.email_verif && formData.email !== formData.email_verif) {
@@ -60,11 +61,21 @@ export default function DemandeCompte() {
 
     setIsSubmitting(true);
 
-    // Simulation d'envoi
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await authService.submitAccountRequest({
+        first_name: formData.prenom,
+        last_name: formData.nom,
+        email: formData.email,
+        organisation: formData.institution,
+        justification: formData.justification
+      });
       setIsSuccess(true);
-    }, 1500);
+    } catch (err: any) {
+      console.error('Account request error:', err);
+      alert(err.response?.data?.detail || 'Une erreur est survenue lors de la soumission de votre demande.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const resetForm = () => {
