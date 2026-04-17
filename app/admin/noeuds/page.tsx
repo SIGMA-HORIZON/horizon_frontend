@@ -1,37 +1,40 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { adminService } from '../../../services/admin';
 
 export default function Noeuds() {
-  const [nodes, setNodes] = useState([
-    { id: 1, name: 'node-01', ip: '10.0.0.11', status: 'badge-on', statusText: 'En ligne', cpu: 72, cpuColor: 'var(--g1-warn)', ram: 54, ramText: '64 / 128 Go', vms: 8 },
-    { id: 2, name: 'node-02', ip: '10.0.0.12', status: 'badge-on', statusText: 'En ligne', cpu: 45, cpuColor: '', ram: 30, ramText: '38 / 128 Go', vms: 5 },
-    { id: 3, name: 'node-gpu-01', ip: '10.0.0.15', status: 'badge-warn', statusText: 'Surchargé', cpu: 96, cpuColor: 'var(--g1-err)', ram: 82, ramText: '210 / 256 Go', vms: 14 }
-  ]);
-
+  const [nodes, setNodes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newIp, setNewIp] = useState('');
   const [newRam, setNewRam] = useState('128 Go');
 
+  useEffect(() => {
+    async function fetchNodes() {
+      try {
+        const data = await adminService.proxmoxGetSummary();
+        setNodes(data.nodes);
+      } catch (err) {
+        console.error("Erreur lors de la récupération des nœuds:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchNodes();
+  }, []);
+
   const handleAddNode = (e: React.FormEvent) => {
     e.preventDefault();
-    const newNode = {
-      id: Date.now(),
-      name: newName || 'node-new',
-      ip: newIp || '10.0.x.x',
-      status: 'badge-on',
-      statusText: 'Prêt',
-      cpu: 0,
-      cpuColor: '',
-      ram: 0,
-      ramText: `0 / ${newRam}`,
-      vms: 0
-    };
-    setNodes([...nodes, newNode]);
+    // Logique de création de mapping (simulation pour l'instant)
+    alert("L'enregistrement d'un nouveau nœud nécessite une configuration physique de l'hyperviseur.");
     setIsModalOpen(false);
-    setNewName('');
-    setNewIp('');
-    setNewRam('128 Go');
+  };
+
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return '0 Go';
+    const gbs = bytes / (1024 * 1024 * 1024);
+    return `${gbs.toFixed(1)} Go`;
   };
 
   return (
@@ -50,13 +53,13 @@ export default function Noeuds() {
       <div className="pm-card">
         <div className="pm-hdr">
           <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-          Liste des hyperviseurs physiques
+          Liste des hyperviseurs physiques en temps réel
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead style={{ background: 'rgba(255,255,255,0.02)' }}>
               <tr>
-                <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Nom / IP</th>
+                <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Nom / Hôte</th>
                 <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Statut</th>
                 <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Charge CPU</th>
                 <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Mémoire (RAM)</th>
@@ -66,44 +69,53 @@ export default function Noeuds() {
             </thead>
             <tbody>
               {nodes.map((node, i) => (
-                <tr key={node.id}>
+                <tr key={node.name}>
                   <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
                     <div style={{ fontWeight: 600, color: 'var(--g1-text)' }}>{node.name}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--g1-muted)', fontFamily: 'monospace' }}>{node.ip}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--g1-muted)', fontFamily: 'monospace' }}>proxmox-host</div>
                   </td>
                   <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
-                    <span className={`badge ${node.status}`}>{node.statusText}</span>
+                    <span className={`badge ${node.status === 'online' ? 'badge-on' : 'badge-err'}`}>
+                      {node.status === 'online' ? 'En ligne' : 'Hors ligne'}
+                    </span>
                   </td>
                   <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ width: '30px' }}>{node.cpu}%</span>
-                      <div className="mini-bar"><div className="mini-fill" style={{ width: `${node.cpu}%`, background: node.cpuColor }}></div></div>
+                      <span style={{ width: '40px' }}>{(node.cpu * 100).toFixed(1)}%</span>
+                      <div className="mini-bar">
+                        <div className="mini-fill" style={{ width: `${node.cpu * 100}%`, background: node.cpu > 0.8 ? 'var(--g1-err)' : (node.cpu > 0.5 ? 'var(--g1-warn)' : '') }}></div>
+                      </div>
                     </div>
                   </td>
                   <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ width: '30px' }}>{node.ram}%</span>
-                      <div className="mini-bar"><div className="mini-fill" style={{ width: `${node.ram}%` }}></div></div>
+                      <span style={{ width: '40px' }}>{node.memory.total > 0 ? ((node.memory.used / node.memory.total) * 100).toFixed(1) : 0}%</span>
+                      <div className="mini-bar">
+                        <div className="mini-fill" style={{ width: `${node.memory.total > 0 ? (node.memory.used / node.memory.total) * 100 : 0}%` }}></div>
+                      </div>
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--g1-muted)', marginTop: '4px' }}>{node.ramText}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--g1-muted)', marginTop: '4px' }}>
+                      {formatBytes(node.memory.used)} / {formatBytes(node.memory.total)}
+                    </div>
                   </td>
-                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)', color: 'var(--g1-text)' }}>{node.vms} actives</td>
+                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)', color: 'var(--g1-text)' }}>{node.vms_count} actives</td>
                   <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)', textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                      <button className="btn-ghost" title="Allumer" style={{ padding: '6px', color: '#22c55e' }}>
-                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2.5"><path d="M12 2v10" /><path d="M18.4 6.6a9 9 0 1 1-12.77.04" /></svg>
-                      </button>
-                      <button className="btn-ghost" title="Redémarrer" style={{ padding: '6px', color: '#3b82f6' }}>
+                      <button className="btn-ghost" title="Actualiser" onClick={() => window.location.reload()} style={{ padding: '6px', color: '#3b82f6' }}>
                         <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2.5"><path d="M23 4v6h-6" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
                       </button>
-                      <button className="btn-ghost" title="Éteindre" style={{ padding: '6px', color: '#ef4444' }}>
-                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="9" y1="9" x2="15" y2="15" /><line x1="15" y1="9" x2="9" y2="15" /></svg>
-                      </button>
-                      <button className="btn-ghost" style={{ fontSize: '11px', padding: '4px 8px', marginLeft: '8px' }}>Maintenance</button>
+                      <button className="btn-ghost" style={{ fontSize: '11px', padding: '4px 8px', marginLeft: '8px' }}>Détails</button>
                     </div>
                   </td>
                 </tr>
               ))}
+              {nodes.length === 0 && (
+                <tr>
+                  <td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: 'var(--g1-muted)' }}>
+                    {loading ? 'Chargement des nœuds...' : 'Aucun nœud Proxmox détecté.'}
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -120,20 +132,12 @@ export default function Noeuds() {
             </div>
             <form onSubmit={handleAddNode} style={{ padding: '24px 32px' }}>
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#F8FAFC', marginBottom: '8px' }}>Nom d'hôte</label>
-                <input required type="text" placeholder="Ex: node-03" value={newName} onChange={e => setNewName(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--g1-border)', borderRadius: '8px', color: '#F8FAFC', fontSize: '14px', outline: 'none' }} />
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#F8FAFC', marginBottom: '8px' }}>Adresse IP</label>
-                <input required type="text" placeholder="Ex: 10.0.0.13" value={newIp} onChange={e => setNewIp(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--g1-border)', borderRadius: '8px', color: '#F8FAFC', fontSize: '14px', outline: 'none' }} />
-              </div>
-              <div style={{ marginBottom: '32px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#F8FAFC', marginBottom: '8px' }}>Mémoire Totale (Go)</label>
-                <input required type="text" placeholder="Ex: 128 Go" value={newRam} onChange={e => setNewRam(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--g1-border)', borderRadius: '8px', color: '#F8FAFC', fontSize: '14px', outline: 'none' }} />
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#F8FAFC', marginBottom: '8px' }}>Nom d'hôte Proxmox</label>
+                <input required type="text" placeholder="Ex: pve" value={newName} onChange={e => setNewName(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--g1-border)', borderRadius: '8px', color: '#F8FAFC', fontSize: '14px', outline: 'none' }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
                 <button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '10px 18px', background: 'transparent', border: '1px solid var(--g1-border)', color: '#F8FAFC', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Annuler</button>
-                <button type="submit" style={{ padding: '10px 18px', background: '#2563EB', border: 'none', color: '#fff', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Enregistrer</button>
+                <button type="submit" style={{ padding: '10px 18px', background: '#2563EB', border: 'none', color: '#fff', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Connecter</button>
               </div>
             </form>
           </div>

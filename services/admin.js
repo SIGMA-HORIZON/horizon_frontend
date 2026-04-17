@@ -112,5 +112,9 @@ export const adminService = {
     async updateIsoTemplate(id, data) {
         const response = await api.patch(`/admin/proxmox/iso-templates/${id}`, data);
         return response.data;
+    },
+    async proxmoxGetSummary() {
+        const response = await api.get('/admin/proxmox/summary');
+        return response.data;
     }
 };

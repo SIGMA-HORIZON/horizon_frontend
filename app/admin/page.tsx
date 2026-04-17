@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { adminService } from '../../services/admin';
 
 const MENU_ITEMS = [
   'Summary', 'Console', 'Hardware', 'Snapshots',
@@ -8,6 +9,25 @@ const MENU_ITEMS = [
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('Summary');
+  const [summary, setSummary] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchSummary() {
+      try {
+        const data = await adminService.proxmoxGetSummary();
+        setSummary(data);
+      } catch (err) {
+        console.error("Erreur lors de la récupération du résumé Proxmox:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSummary();
+  }, []);
+
+  const onlineNodes = summary?.nodes?.filter((n: any) => n.status === 'online')?.length || 0;
+  const offlineNodes = (summary?.nodes?.length || 0) - onlineNodes;
 
   return (
     <div className="page active" style={{ padding: '0 20px 40px', height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -18,7 +38,7 @@ export default function AdminDashboard() {
           <h1 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--g1-text)' }}>Datacenter</h1>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button className="btn-ghost" style={{ padding: '6px 12px', fontSize: '13px' }}>Search</button>
+          <button className="btn-ghost" style={{ padding: '6px 12px', fontSize: '13px' }} onClick={() => window.location.reload()}>Actualiser</button>
         </div>
       </div>
 
@@ -47,20 +67,26 @@ export default function AdminDashboard() {
                 <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-start' }}>
                   <div style={{ textAlign: 'center', flex: 1 }}>
                     <div style={{ fontWeight: 600, marginBottom: '16px' }}>Status</div>
-                    <div style={{ width: '48px', height: '48px', background: '#22c55e', borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px' }}>✓</div>
-                    <div style={{ fontSize: '12px', marginTop: '12px', color: 'var(--g1-text)' }}>Cluster: eu-alps, Quorate: Yes</div>
+                    <div style={{ width: '48px', height: '48px', background: onlineNodes > 0 ? '#22c55e' : '#ef4444', borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px' }}>
+                      {onlineNodes > 0 ? '✓' : '✕'}
+                    </div>
+                    <div style={{ fontSize: '12px', marginTop: '12px', color: 'var(--g1-text)' }}>
+                      Cluster Proxmox: {onlineNodes > 0 ? 'ONLINE' : 'OFFLINE'}
+                    </div>
                   </div>
                   <div style={{ textAlign: 'center', flex: 1 }}>
                     <div style={{ fontWeight: 600, marginBottom: '16px' }}>Nodes</div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '24px' }}><span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: '#22c55e', fontSize: '16px' }}>✓</span> Online</span> <span style={{ fontWeight: 600 }}>3</span></div>
-                      <div style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '24px' }}><span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: '#ef4444', fontSize: '16px' }}>✕</span> Offline</span> <span style={{ fontWeight: 600 }}>0</span></div>
+                      <div style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '24px' }}><span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: '#22c55e', fontSize: '16px' }}>✓</span> Online</span> <span style={{ fontWeight: 600 }}>{onlineNodes}</span></div>
+                      <div style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '24px' }}><span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><span style={{ color: '#ef4444', fontSize: '16px' }}>✕</span> Offline</span> <span style={{ fontWeight: 600 }}>{offlineNodes}</span></div>
                     </div>
                   </div>
                   <div style={{ textAlign: 'center', flex: 1 }}>
-                    <div style={{ fontWeight: 600, marginBottom: '16px' }}>Ceph</div>
-                    <div style={{ width: '48px', height: '48px', background: '#22c55e', borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px' }}>✓</div>
-                    <div style={{ fontSize: '12px', marginTop: '12px', color: 'var(--g1-text)' }}>HEALTH_OK</div>
+                    <div style={{ fontWeight: 600, marginBottom: '16px' }}>API Proxmox</div>
+                    <div style={{ width: '48px', height: '48px', background: summary ? '#22c55e' : '#64748b', borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px' }}>
+                      {summary ? '✓' : '?'}
+                    </div>
+                    <div style={{ fontSize: '12px', marginTop: '12px', color: 'var(--g1-text)' }}>{summary ? 'CONNECTÉ' : 'VÉRIFICATION...'}</div>
                   </div>
                 </div>
               </div>
@@ -69,64 +95,62 @@ export default function AdminDashboard() {
               <div className="pm-card" style={{ padding: '20px', animation: 'fadeUp 0.3s ease 0.1s both' }}>
                 <div style={{ fontSize: '14px', fontWeight: 600, color: '#3b82f6', marginBottom: '16px' }}>Guests</div>
                 <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-                  <div style={{ flex: 1, borderRight: '1px solid var(--g1-border)', paddingRight: '20px' }}>
-                    <div style={{ fontWeight: 600, marginBottom: '20px', textAlign: 'center' }}>Virtual Machines</div>
+                  <div style={{ flex: 1, padding: '10px' }}>
+                    <div style={{ fontWeight: 600, marginBottom: '20px', textAlign: 'center' }}>Machines Virtuelles (QEMU)</div>
                     <div style={{ maxWidth: '200px', margin: '0 auto' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '10px' }}><span><span style={{ color: '#22c55e', marginRight: '6px' }}>●</span> Running</span> <span style={{ fontWeight: 600 }}>9</span></div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '10px' }}><span><span style={{ color: 'var(--g1-muted)', marginRight: '6px' }}>●</span> Stopped</span> <span style={{ fontWeight: 600 }}>58</span></div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}><span><span style={{ color: 'var(--g1-muted)', marginRight: '6px', fontSize: '14px' }}>○</span> Templates</span> <span style={{ fontWeight: 600 }}>1</span></div>
-                    </div>
-                  </div>
-                  <div style={{ flex: 1, paddingLeft: '20px' }}>
-                    <div style={{ fontWeight: 600, marginBottom: '20px', textAlign: 'center' }}>LXC Container</div>
-                    <div style={{ maxWidth: '200px', margin: '0 auto' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '10px' }}><span><span style={{ color: '#22c55e', marginRight: '6px' }}>●</span> Running</span> <span style={{ fontWeight: 600 }}>10</span></div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}><span><span style={{ color: 'var(--g1-muted)', marginRight: '6px' }}>●</span> Stopped</span> <span style={{ fontWeight: 600 }}>4019</span></div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '10px' }}>
+                        <span><span style={{ color: '#22c55e', marginRight: '6px' }}>●</span> Running</span>
+                        <span style={{ fontWeight: 600 }}>{summary?.active_vms || 0}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '10px' }}>
+                        <span><span style={{ color: 'var(--g1-muted)', marginRight: '6px' }}>●</span> Total</span>
+                        <span style={{ fontWeight: 600 }}>{summary?.total_vms || 0}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* RESOURCES */}
-
-
-              {/* NODES */}
+              {/* NODES LIST */}
               <div className="pm-card" style={{ animation: 'fadeUp 0.3s ease 0.3s both' }}>
                 <div style={{ padding: '16px 20px', fontSize: '14px', fontWeight: 600, color: '#3b82f6', borderBottom: '1px solid var(--g1-border)' }}>
-                  Nodes
+                  Nodes ({summary?.nodes?.length || 0})
                 </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
                   <thead style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid var(--g1-border)' }}>
                     <tr>
                       <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500, color: 'var(--g1-muted)' }}>Name</th>
-                      <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500, color: 'var(--g1-muted)' }}>ID</th>
-                      <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500, color: 'var(--g1-muted)' }}>Online</th>
+                      <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500, color: 'var(--g1-muted)' }}>Status</th>
                       <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500, color: 'var(--g1-muted)' }}>CPU usage</th>
                       <th style={{ padding: '12px 20px', textAlign: 'left', fontWeight: 500, color: 'var(--g1-muted)' }}>Memory usage</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                      <td style={{ padding: '12px 20px', color: 'var(--g1-text)' }}>prod1</td>
-                      <td style={{ padding: '12px 20px', color: 'var(--g1-text)' }}>1</td>
-                      <td style={{ padding: '12px 20px', color: '#22c55e', fontWeight: 'bold' }}>✓</td>
-                      <td style={{ padding: '12px 20px' }}><div style={{ background: 'rgba(59,130,246,0.1)', color: '#60A5FA', padding: '2px 6px', borderRadius: '4px', display: 'inline-block' }}>20%</div></td>
-                      <td style={{ padding: '12px 20px' }}><div style={{ background: 'rgba(59,130,246,0.2)', color: '#60A5FA', padding: '2px 6px', borderRadius: '4px', display: 'inline-block' }}>76%</div></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                      <td style={{ padding: '12px 20px', color: 'var(--g1-text)' }}>prod2</td>
-                      <td style={{ padding: '12px 20px', color: 'var(--g1-text)' }}>2</td>
-                      <td style={{ padding: '12px 20px', color: '#22c55e', fontWeight: 'bold' }}>✓</td>
-                      <td style={{ padding: '12px 20px' }}><div style={{ background: 'rgba(59,130,246,0.1)', color: '#60A5FA', padding: '2px 6px', borderRadius: '4px', display: 'inline-block' }}>3%</div></td>
-                      <td style={{ padding: '12px 20px' }}><div style={{ background: 'rgba(59,130,246,0.2)', color: '#60A5FA', padding: '2px 6px', borderRadius: '4px', display: 'inline-block' }}>61%</div></td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: '12px 20px', color: 'var(--g1-text)' }}>prod3</td>
-                      <td style={{ padding: '12px 20px', color: 'var(--g1-text)' }}>3</td>
-                      <td style={{ padding: '12px 20px', color: '#22c55e', fontWeight: 'bold' }}>✓</td>
-                      <td style={{ padding: '12px 20px' }}><div style={{ background: 'rgba(59,130,246,0.1)', color: '#60A5FA', padding: '2px 6px', borderRadius: '4px', display: 'inline-block' }}>6%</div></td>
-                      <td style={{ padding: '12px 20px' }}><div style={{ background: 'rgba(59,130,246,0.2)', color: '#60A5FA', padding: '2px 6px', borderRadius: '4px', display: 'inline-block' }}>52%</div></td>
-                    </tr>
+                    {summary?.nodes?.map((node: any) => (
+                      <tr key={node.name} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <td style={{ padding: '12px 20px', color: 'var(--g1-text)', fontWeight: 600 }}>{node.name}</td>
+                        <td style={{ padding: '12px 20px', color: node.status === 'online' ? '#22c55e' : '#ef4444', fontWeight: 'bold' }}>
+                          {node.status === 'online' ? '✓ Online' : '✕ Offline'}
+                        </td>
+                        <td style={{ padding: '12px 20px' }}>
+                          <div style={{ background: 'rgba(59,130,246,0.1)', color: '#60A5FA', padding: '2px 6px', borderRadius: '4px', display: 'inline-block' }}>
+                            {(node.cpu * 100).toFixed(1)}%
+                          </div>
+                        </td>
+                        <td style={{ padding: '12px 20px' }}>
+                          <div style={{ background: 'rgba(59,130,246,0.2)', color: '#60A5FA', padding: '2px 6px', borderRadius: '4px', display: 'inline-block' }}>
+                            {node.memory.total > 0 ? ((node.memory.used / node.memory.total) * 100).toFixed(1) : 0}%
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {(!summary || summary.nodes.length === 0) && (
+                      <tr>
+                        <td colSpan={4} style={{ padding: '40px', textAlign: 'center', color: 'var(--g1-muted)' }}>
+                          Aucun nœud détecté ou Proxmox inaccessible.
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
