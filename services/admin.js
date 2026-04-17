@@ -116,5 +116,21 @@ export const adminService = {
     async proxmoxGetSummary() {
         const response = await api.get('/admin/proxmox/summary');
         return response.data;
+    },
+    async listIsos() {
+        const response = await api.get('/admin/isos');
+        return response.data;
+    },
+    async createIso(data) {
+        const response = await api.post('/admin/isos', data);
+        return response.data;
+    },
+    async listIsoTemplates() {
+        const response = await api.get('/admin/proxmox/iso-templates');
+        return response.data;
+    },
+    async getProxmoxStorageIsos() {
+        const response = await api.get('/admin/proxmox/storage-isos');
+        return response.data;
     }
 };
