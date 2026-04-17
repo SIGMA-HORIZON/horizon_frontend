@@ -32,7 +32,18 @@ export default function Connexion() {
       }
     } catch (err: any) {
       console.error("Login error:", err);
-      setError(err.response?.data?.detail || "Identifiants invalides ou erreur de connexion.");
+      const detail = err.response?.data?.detail;
+      let message = "Identifiants invalides ou erreur de connexion.";
+
+      if (typeof detail === 'string') {
+        message = detail;
+      } else if (Array.isArray(detail)) {
+        message = detail.map((d: any) => d.msg || JSON.stringify(d)).join(", ");
+      } else if (detail && typeof detail === 'object') {
+        message = detail.msg || JSON.stringify(detail);
+      }
+
+      setError(message);
     } finally {
       setIsLoading(false);
     }

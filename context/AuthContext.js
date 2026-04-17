@@ -33,13 +33,19 @@ export const AuthProvider = ({ children }) => {
         if (!loading) {
             const publicRoutes = ['/connexion', '/', '/demande_compte', '/cgu'];
             const isPublicRoute = publicRoutes.includes(pathname);
+            const isChangePasswordRoute = pathname === '/mon-profil-use/change-password';
 
             if (!user && !isPublicRoute) {
                 router.push('/connexion');
-            } else if (user && pathname === '/connexion') {
-                router.push((user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') ? '/admin' : '/dashboard');
+            } else if (user) {
+                if (user.must_change_pwd && !isChangePasswordRoute) {
+                    router.push('/mon-profil-use/change-password');
+                } else if (!user.must_change_pwd && isChangePasswordRoute) {
+                    router.push('/dashboard');
+                } else if (pathname === '/connexion') {
+                    router.push((user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') ? '/admin' : '/dashboard');
+                }
             }
-
         }
     }, [user, loading, pathname, router]);
 

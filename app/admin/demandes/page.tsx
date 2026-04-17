@@ -85,20 +85,21 @@ export default function DemandesComptes() {
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                         <thead style={{ background: 'rgba(255,255,255,0.02)' }}>
                             <tr>
-                                <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Utilisateur</th>
-                                <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Organisation</th>
-                                <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Date</th>
-                                <th style={{ padding: '16px 20px', textAlign: 'right', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Actions</th>
+                                <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Utilisateur / Contact</th>
+                                <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Institution</th>
+                                <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Statut Demande</th>
+                                <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Date Soumission</th>
+                                <th style={{ padding: '16px 20px', textAlign: 'right', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Décision</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan={4} style={{ padding: '40px', textAlign: 'center', color: 'var(--g1-muted)' }}>Chargement des demandes...</td>
+                                    <td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: 'var(--g1-muted)' }}>Chargement des demandes...</td>
                                 </tr>
                             ) : requests.length === 0 ? (
                                 <tr>
-                                    <td colSpan={4} style={{ padding: '40px', textAlign: 'center', color: 'var(--g1-muted)' }}>Aucune demande en attente.</td>
+                                    <td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: 'var(--g1-muted)' }}>Aucune demande en attente.</td>
                                 </tr>
                             ) : (
                                 requests.map(req => (
@@ -106,11 +107,17 @@ export default function DemandesComptes() {
                                         <td style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
                                             <div>
                                                 <div style={{ fontWeight: 600, color: 'var(--g1-text)' }}>{req.first_name} {req.last_name}</div>
-                                                <div style={{ fontSize: '12px', color: 'var(--g1-muted)' }}>{req.email}</div>
+                                                <div style={{ fontSize: '12px', color: 'var(--g1-muted)', fontFamily: 'monospace' }}>{req.email}</div>
                                             </div>
                                         </td>
                                         <td style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.03)', color: 'var(--g1-text)' }}>
-                                            {req.organisation}
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--cyan)' }}></div>
+                                                {req.organisation.toUpperCase()}
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                            <span className="badge badge-warn">EN ATTENTE</span>
                                         </td>
                                         <td style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.03)', color: 'var(--g1-muted)' }}>
                                             {new Date(req.created_at).toLocaleDateString('fr-FR')}
@@ -118,8 +125,8 @@ export default function DemandesComptes() {
                                         <td style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.03)', textAlign: 'right' }}>
                                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                                                 <button
-                                                    className="btn-ghost"
-                                                    style={{ fontSize: '12px', padding: '6px 12px' }}
+                                                    className="btn-accent"
+                                                    style={{ fontSize: '11px', padding: '6px 12px', background: '#22c55e', border: 'none' }}
                                                     onClick={() => {
                                                         setSelectedRequest(req);
                                                         setIsApproveModalOpen(true);
@@ -129,7 +136,7 @@ export default function DemandesComptes() {
                                                 </button>
                                                 <button
                                                     className="btn-ghost"
-                                                    style={{ fontSize: '12px', padding: '6px 12px', color: '#EF4444' }}
+                                                    style={{ fontSize: '11px', padding: '6px 12px', color: '#EF4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}
                                                     onClick={() => {
                                                         setSelectedRequest(req);
                                                         setIsRejectModalOpen(true);

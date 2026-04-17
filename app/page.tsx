@@ -36,7 +36,7 @@ export default function Home() {
 
           <p>
             Horizon donne aux étudiants et chercheurs de l'ENSPY un accès autonome
-            aux ressources — serveurs virtuels, stockage haute disponibilité, réseaux isolés —
+            aux ressources - serveurs virtuels, stockage haute disponibilité, réseaux isolés -
             avec une simplicité déconcertante.
           </p>
 

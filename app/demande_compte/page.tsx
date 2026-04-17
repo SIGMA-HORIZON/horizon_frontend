@@ -35,14 +35,31 @@ export default function DemandeCompte() {
     setError('');
 
     try {
+      // Mapping des champs du formulaire vers ceux attendus par le backend
       await accountService.submitRequest({
-        ...formData,
-        full_name: `${formData.first_name} ${formData.last_name}`,
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        organisation: formData.institution, // 'institution' -> 'organisation'
+        justification: formData.project_justification // 'project_justification' -> 'justification'
       });
       setIsSuccess(true);
     } catch (err: any) {
       console.error("Request submission error:", err);
-      setError(err.response?.data?.detail || "Une erreur est survenue lors de la soumission. Veuillez réessayer.");
+
+      const detail = err.response?.data?.detail;
+      if (Array.isArray(detail)) {
+        // Gérer le format d'erreur de FastAPI (tableau d'objets)
+        const errorMessages = detail.map((d: any) => {
+          const field = d.loc && d.loc.length > 1 ? d.loc[1] : '';
+          return `${field ? field + ': ' : ''}${d.msg}`;
+        }).join(', ');
+        setError(errorMessages);
+      } else if (typeof detail === 'string') {
+        setError(detail);
+      } else {
+        setError("Une erreur est survenue lors de la soumission. Veuillez réessayer.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -82,28 +99,31 @@ export default function DemandeCompte() {
             DEMANDE DE COMPTE
           </div>
 
-          <h1 className="request-title">Horizon : Demande de création</h1>
-          <p className="request-desc">
-            Veuillez remplir ce formulaire avec le maximum de détails pour nous aider à évaluer votre demande d'admission.
+          <h1 className="request-title">Demande de création de compte Horizon</h1>
+          <p className="request-desc" style={{ marginBottom: '24px' }}>
+            Rejoignez l'infrastructure Cloud académique de l'ENSPY. <br />
+            Veuillez remplir ce formulaire avec précision pour obtenir vos accès aux ressources de calcul.
           </p>
 
+          <div className="request-alert" style={{ background: 'rgba(59, 130, 246, 0.05)', borderColor: 'rgba(59, 130, 246, 0.1)', color: '#93C5FD', marginBottom: '32px' }}>
+            <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '8px', color: '#60A5FA', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              À propos du Projet SIGMA Horizon
+            </div>
+            <div style={{ fontSize: '13.5px', lineHeight: '1.6', opacity: 0.9 }}>
+              Horizon est une plateforme de virtualisation haute performance dédiée aux étudiants et chercheurs de l'ENSPY.
+              Elle permet le déploiement de serveurs virtuels isolés, l'accès à du stockage distribué Ceph et la gestion agile
+              d'infrastructures pour les travaux dirigés (TP), projets de recherche et expérimentations systèmes.
+              <strong> Chaque demande est soumise à validation manuelle par l'équipe d'administration.</strong>
+            </div>
+          </div>
+
           {error && (
-            <div className="request-alert" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444' }}>
+            <div className="request-alert" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', marginBottom: '24px' }}>
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
               <div>{error}</div>
             </div>
           )}
-
-          <div className="request-alert">
-            <svg className="form-icon" style={{ flexShrink: 0, color: '#00B4D8' }} viewBox="0 0 24 24" width="20" height="20">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" fill="none" strokeWidth="2"></circle>
-              <line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"></line>
-              <line x1="12" y1="8" x2="12.01" y2="8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"></line>
-            </svg>
-            <div style={{ color: '#CBD5E1' }}>
-              <strong>Remarque :</strong> Les champs marqués d'un <span style={{ color: '#00B4D8' }}>*</span> sont obligatoires. Cet espace est réservé à un <a href="#" style={{ color: '#E2E8F0', textDecoration: 'underline' }}>usage strictement académique</a> — consultez les <a href="#" style={{ color: '#E2E8F0', textDecoration: 'underline' }}>conditions d'utilisation</a> avant de soumettre.
-            </div>
-          </div>
 
           <form onSubmit={handleSubmit}>
 

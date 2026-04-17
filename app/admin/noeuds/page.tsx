@@ -49,7 +49,7 @@ export default function Noeuds() {
 
       <div className="pm-card">
         <div className="pm-hdr">
-          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
           Liste des hyperviseurs physiques
         </div>
         <div style={{ overflowX: 'auto' }}>
@@ -61,35 +61,46 @@ export default function Noeuds() {
                 <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Charge CPU</th>
                 <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Mémoire (RAM)</th>
                 <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>VMs</th>
-                <th style={{ padding: '16px 20px', textAlign: 'left', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)', textAlign: 'right' }}>Actions</th>
+                <th style={{ padding: '16px 20px', textAlign: 'right', color: 'var(--g1-muted)', fontWeight: 600, borderBottom: '1px solid var(--g1-border)' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {nodes.map((node, i) => (
                 <tr key={node.id}>
-                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length -1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
+                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
                     <div style={{ fontWeight: 600, color: 'var(--g1-text)' }}>{node.name}</div>
                     <div style={{ fontSize: '12px', color: 'var(--g1-muted)', fontFamily: 'monospace' }}>{node.ip}</div>
                   </td>
-                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length -1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
+                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
                     <span className={`badge ${node.status}`}>{node.statusText}</span>
                   </td>
-                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length -1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
+                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ width: '30px' }}>{node.cpu}%</span>
                       <div className="mini-bar"><div className="mini-fill" style={{ width: `${node.cpu}%`, background: node.cpuColor }}></div></div>
                     </div>
                   </td>
-                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length -1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
+                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ width: '30px' }}>{node.ram}%</span>
                       <div className="mini-bar"><div className="mini-fill" style={{ width: `${node.ram}%` }}></div></div>
                     </div>
                     <div style={{ fontSize: '11px', color: 'var(--g1-muted)', marginTop: '4px' }}>{node.ramText}</div>
                   </td>
-                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length -1 ? 'none' : '1px solid rgba(255,255,255,0.03)', color: 'var(--g1-text)' }}>{node.vms} actives</td>
-                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length -1 ? 'none' : '1px solid rgba(255,255,255,0.03)', textAlign: 'right' }}>
-                    <button className="btn-ghost" style={{ fontSize: '12px', padding: '6px 12px' }}>Maintenance</button>
+                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)', color: 'var(--g1-text)' }}>{node.vms} actives</td>
+                  <td style={{ padding: '16px 20px', borderBottom: i === nodes.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)', textAlign: 'right' }}>
+                    <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                      <button className="btn-ghost" title="Allumer" style={{ padding: '6px', color: '#22c55e' }}>
+                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2.5"><path d="M12 2v10" /><path d="M18.4 6.6a9 9 0 1 1-12.77.04" /></svg>
+                      </button>
+                      <button className="btn-ghost" title="Redémarrer" style={{ padding: '6px', color: '#3b82f6' }}>
+                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2.5"><path d="M23 4v6h-6" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
+                      </button>
+                      <button className="btn-ghost" title="Éteindre" style={{ padding: '6px', color: '#ef4444' }}>
+                        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><line x1="9" y1="9" x2="15" y2="15" /><line x1="15" y1="9" x2="9" y2="15" /></svg>
+                      </button>
+                      <button className="btn-ghost" style={{ fontSize: '11px', padding: '4px 8px', marginLeft: '8px' }}>Maintenance</button>
+                    </div>
                   </td>
                 </tr>
               ))}

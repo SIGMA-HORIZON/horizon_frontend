@@ -34,26 +34,33 @@ export default function MesVMs() {
                   <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>VMID {vm.id}</div>
                 </td>
                 <td>
-                  <span className={`badge badge-${vm.status}`}>
-                    {vm.status === 'warn' ? '⚠ ' : '● '}
-                    {vm.statusText}
+                  <span className={`badge badge-${vm.status === 'running' ? 'on' : (vm.status === 'stopped' ? 'off' : 'warn')}`}>
+                    {vm.status === 'running' ? '● ' : '○ '}
+                    {vm.status.toUpperCase()}
                   </span>
                 </td>
-                <td><span className="badge badge-blue">{vm.os}</span></td>
+                <td><span className="badge badge-blue">LINUX</span></td>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px' }}>
-                    {vm.cpuVal}%
+                    {vm.cpu_usage || 0}%
                     <div className="mini-bar">
-                      <div className={`mini-fill ${vm.status === 'warn' ? 'mini-fill-err' : (vm.cpuVal > 50 ? 'mini-fill-warn' : '')}`} style={{ width: `${vm.cpuVal}%` }}></div>
+                      <div className={`mini-fill ${(vm.cpu_usage || 0) > 80 ? 'mini-fill-err' : ((vm.cpu_usage || 0) > 50 ? 'mini-fill-warn' : '')}`} style={{ width: `${vm.cpu_usage || 0}%` }}></div>
                     </div>
                   </div>
                 </td>
-                <td style={{ fontSize: '12px' }}>{((vm.ramVal / 100) * parseFloat(vm.ram)).toFixed(1)} / {vm.ram}</td>
-                <td style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-muted)' }}>{vm.ip}</td>
+                <td style={{ fontSize: '12px' }}>{(((vm.ram_usage || 0) / 100) * vm.ram_gb).toFixed(1)} / {vm.ram_gb} Go</td>
+                <td style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--text-muted)' }}>{vm.ip_address || 'En attente...'}</td>
                 <td>
-                  <div style={{ display: 'flex', gap: '4px' }} onClick={e => e.stopPropagation()}>
-                    <button className="btn-vm btn-vm-console" style={{ fontSize: '10px', padding: '3px 8px' }}>Console</button>
-                    <button className="btn-vm btn-vm-stop" style={{ fontSize: '10px', padding: '3px 8px' }}>Stop</button>
+                  <div style={{ display: 'flex', gap: '6px' }} onClick={e => e.stopPropagation()}>
+                    <button className="btn-vm btn-vm-console" style={{ fontSize: '10px', padding: '4px 10px' }}>Console</button>
+                    <button
+                      className="btn-vm"
+                      style={{ fontSize: '10px', padding: '4px 10px', color: 'var(--cyan)', borderColor: 'rgba(0,180,216,0.2)', background: 'rgba(0,180,216,0.02)' }}
+                      onClick={() => router.push(`/dashboard/mes-vms/${vm.id}`)}
+                    >
+                      Détails
+                    </button>
+                    <button className="btn-vm btn-vm-stop" style={{ fontSize: '10px', padding: '4px 10px' }}>Stop</button>
                   </div>
                 </td>
               </tr>

@@ -5,19 +5,20 @@ import { vmService } from '../../services/vms';
 import { useAuth } from '../../context/AuthContext';
 
 export interface VM {
-  id: string; // The UUID or ID from DB
-  proxmox_vmid?: number;
+  id: string;
+  proxmox_vmid: number;
   name: string;
-  os: string;
-  cpu: number;
-  cpu_usage?: number;
-  ram: string; // e.g. "16GB"
-  ram_usage?: number;
-  storage: string;
+  description?: string;
+  vcpu: number;
+  ram_gb: number;
+  storage_gb: number;
+  status: string;
+  lease_start: string;
+  lease_end: string;
   ip_address?: string;
-  status: 'on' | 'off' | 'warn';
-  created_at: string;
-  expires_at: string;
+  // UI helpers (calculated or mocked)
+  cpu_usage?: number;
+  ram_usage?: number;
 }
 
 export interface Reservation {
@@ -40,6 +41,7 @@ interface VMContextType {
   deleteVM: (vmid: string) => Promise<void>;
   stopVM: (vmid: string) => Promise<void>;
   extendVM: (vmid: string, hours: number) => Promise<void>;
+  updateVM: (vmid: string, data: any) => Promise<void>;
 }
 
 export const VMContext = createContext<VMContextType | null>(null);
@@ -95,6 +97,17 @@ export const VMProvider = ({ children }: { children: React.ReactNode }) => {
     await refreshVMs();
   };
 
+  const updateVM = async (vmid: string, data: any) => {
+    // Mapping frontend fields to backend if necessary
+    const backendData: any = {};
+    if (data.cpu !== undefined) backendData.vcpu = data.cpu;
+    if (data.ram) backendData.ram_gb = parseFloat(data.ram);
+    if (data.storage) backendData.storage_gb = parseFloat(data.storage);
+
+    await vmService.updateVm(vmid, backendData);
+    await refreshVMs();
+  };
+
   return (
     <VMContext.Provider value={{
       vms,
@@ -104,7 +117,8 @@ export const VMProvider = ({ children }: { children: React.ReactNode }) => {
       addVM,
       deleteVM,
       stopVM,
-      extendVM
+      extendVM,
+      updateVM
     }}>
       {children}
     </VMContext.Provider>

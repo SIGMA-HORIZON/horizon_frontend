@@ -96,7 +96,7 @@ export default function CGUPage() {
           </div>
 
           <div className="sb-footer">
-            <div>Version 1.0 — Avril 2025<br/>Équipe Horizon · ENSPY</div>
+            <div>Version 1.0 - Avril 2025<br/>Équipe Horizon · ENSPY</div>
             <Link href="/demande_compte">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
               Demander un accès
@@ -120,7 +120,7 @@ export default function CGUPage() {
               </div>
               <div className="meta-chip">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-                Équipe Horizon — ENSPY
+                Équipe Horizon - ENSPY
               </div>
               <div className="meta-chip">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -199,13 +199,13 @@ export default function CGUPage() {
               <span>Tout manquement à ces interdictions entraîne des sanctions immédiates pouvant aller jusqu'à la suspension définitive du compte.</span>
             </div>
             <ul className="doc-list">
-              <li><strong>Minage de cryptomonnaies</strong> — toute exploitation des ressources à cette fin est interdite.</li>
-              <li><strong>Activités commerciales</strong> — utilisation générant des revenus personnels directs ou indirects.</li>
-              <li><strong>Stockage ou distribution de contenus illégaux</strong> — y compris les logiciels piratés et tout contenu contrevenant à la législation.</li>
-              <li><strong>Attaques réseau</strong> — port scanning, exploitation de vulnérabilités, tentatives d'intrusion depuis une VM.</li>
-              <li><strong>Partage des identifiants</strong> — il est interdit de transmettre ses accès à un tiers.</li>
-              <li><strong>Modification de l'infrastructure physique</strong> — accès aux paramètres firmware réservé aux admins.</li>
-              <li><strong>Accès aux VMs d'autres utilisateurs</strong> — chaque VM appartient exclusivement à son créateur.</li>
+              <li><strong>Minage de cryptomonnaies</strong> - toute exploitation des ressources à cette fin est interdite.</li>
+              <li><strong>Activités commerciales</strong> - utilisation générant des revenus personnels directs ou indirects.</li>
+              <li><strong>Stockage ou distribution de contenus illégaux</strong> - y compris les logiciels piratés et tout contenu contrevenant à la législation.</li>
+              <li><strong>Attaques réseau</strong> - port scanning, exploitation de vulnérabilités, tentatives d'intrusion depuis une VM.</li>
+              <li><strong>Partage des identifiants</strong> - il est interdit de transmettre ses accès à un tiers.</li>
+              <li><strong>Modification de l'infrastructure physique</strong> - accès aux paramètres firmware réservé aux admins.</li>
+              <li><strong>Accès aux VMs d'autres utilisateurs</strong> - chaque VM appartient exclusivement à son créateur.</li>
             </ul>
             <div className="section-end"></div>
           </section>
