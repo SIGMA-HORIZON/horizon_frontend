@@ -136,5 +136,33 @@ export const adminService = {
     async listReservations() {
         const response = await api.get('/admin/reservations');
         return response.data;
-    }
+    },
+
+    /**
+     * Upload un fichier ISO directement sur le stockage Proxmox.
+     * @param {File} file - Le fichier ISO à envoyer.
+     * @param {Object} meta - Métadonnées : node, storage, name, os_family, os_version, description.
+     * @param {Function} onUploadProgress - Callback (progressEvent) pour la barre de progression.
+     */
+    async uploadIso(file, meta = {}, onUploadProgress = null) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const params = {
+            node: meta.node || 'pve',
+            storage: meta.storage || 'local',
+            name: meta.name || file.name,
+            os_family: meta.os_family || 'LINUX',
+            os_version: meta.os_version || 'Unknown',
+        };
+        if (meta.description) params.description = meta.description;
+
+        const response = await api.post('/admin/proxmox/upload-iso', formData, {
+            params,
+            headers: { 'Content-Type': 'multipart/form-data' },
+            onUploadProgress,
+            timeout: 0, // Pas de timeout pour les gros fichiers ISO
+        });
+        return response.data;
+    },
 };
