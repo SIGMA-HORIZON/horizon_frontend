@@ -5,11 +5,27 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import '../dashboard/dashboard.css';
 import '../home.css';
+import { adminService } from '../../services/admin';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { logout } = useAuth();
+  const [clusterOnline, setClusterOnline] = React.useState<boolean | null>(null);
+
+  React.useEffect(() => {
+    const checkHealth = async () => {
+      try {
+        const data = await adminService.proxmoxGetHealth();
+        setClusterOnline(data.online);
+      } catch (err) {
+        setClusterOnline(false);
+      }
+    };
+    checkHealth();
+    const timer = setInterval(checkHealth, 30000); // Re-check every 30s
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="dashboard-theme">
@@ -82,7 +98,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               Rechercher (Utilisateur, IP, VM)...
             </div>
             <div className="topbar-right">
-              <div className="status-pill"><div className="status-dot"></div>Cluster en ligne</div>
+              <div className={`status-pill ${clusterOnline === false ? 'offline' : ''}`}>
+                <div className={`status-dot ${clusterOnline === false ? 'offline' : ''}`}></div>
+                {clusterOnline === null ? 'Vérification...' : clusterOnline ? 'Cluster en ligne' : 'Cluster hors ligne'}
+              </div>
               <button className="btn-ghost">Aide</button>
             </div>
           </div>

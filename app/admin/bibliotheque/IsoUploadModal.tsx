@@ -218,8 +218,8 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                                 <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: 500 }}>
                                     {status === 'uploading' ? `Envoi en cours… ${progress}%`
-                                        : status === 'processing' ? '⚙️ Traitement Proxmox…'
-                                            : '✅ Upload réussi !'}
+                                        : status === 'processing' ? '⚙️ Traitement & Enregistrement…'
+                                            : '✅ Upload & Référencement réussis !'}
                                 </span>
                                 <span style={{ fontSize: '12px', color: '#6366f1', fontWeight: 600 }}>{progress}%</span>
                             </div>

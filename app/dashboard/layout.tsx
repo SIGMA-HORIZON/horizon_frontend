@@ -7,6 +7,8 @@ import { VMProvider, useVMs } from './VMContext';
 import './dashboard.css';
 import '../home.css';
 import CreateVMModal from './CreateVMModal';
+import CreateVMSelectionModal from './CreateVMSelectionModal';
+import CreateVMDirectModal from './CreateVMDirectModal';
 
 function SearchComponent({ vms, router }: { vms: any[], router: any }) {
   const [query, setQuery] = useState('');
@@ -60,12 +62,15 @@ function SearchComponent({ vms, router }: { vms: any[], router: any }) {
 function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSelectionModalOpen, setIsSelectionModalOpen] = useState(false);
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [isDirectModalOpen, setIsDirectModalOpen] = useState(false);
+
   const { user, logout } = useAuth();
-  const { vms } = useVMs();
+  const { vms, refreshVMs } = useVMs();
 
   useEffect(() => {
-    const handleOpen = () => setIsModalOpen(true);
+    const handleOpen = () => setIsSelectionModalOpen(true);
     window.addEventListener('open-create-vm', handleOpen);
     return () => window.removeEventListener('open-create-vm', handleOpen);
   }, []);
@@ -103,7 +108,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                     </div>
                   </Link>
                 ))}
-                <div className="vm-tree-item" style={{ color: 'var(--g1-accent2)', fontWeight: 600, cursor: 'pointer' }} onClick={() => setIsModalOpen(true)}>
+                <div className="vm-tree-item" style={{ color: 'var(--g1-accent2)', fontWeight: 600, cursor: 'pointer' }} onClick={() => setIsSelectionModalOpen(true)}>
                   <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2.5" fill="none"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                   Créer une VM
                 </div>
@@ -150,7 +155,33 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </div>
-      <CreateVMModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+      <CreateVMSelectionModal
+        isOpen={isSelectionModalOpen}
+        onClose={() => setIsSelectionModalOpen(false)}
+        onSelectTemplate={() => {
+          setIsSelectionModalOpen(false);
+          setIsTemplateModalOpen(true);
+        }}
+        onSelectDirect={() => {
+          setIsSelectionModalOpen(false);
+          setIsDirectModalOpen(true);
+        }}
+      />
+
+      <CreateVMModal
+        isOpen={isTemplateModalOpen}
+        onClose={() => setIsTemplateModalOpen(false)}
+      />
+
+      <CreateVMDirectModal
+        isOpen={isDirectModalOpen}
+        onClose={() => setIsDirectModalOpen(false)}
+        onSuccess={() => {
+          if (refreshVMs) refreshVMs();
+          router.push('/dashboard/mes-vms');
+        }}
+      />
     </div>
   );
 }

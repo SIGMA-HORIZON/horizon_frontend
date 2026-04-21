@@ -70,6 +70,8 @@
 .topbar-right { display:flex; align-items:center; gap:12px; }
 .status-pill { display:flex; align-items:center; gap:6px; font-size:13px; background:rgba(16,185,129,0.1); color:var(--g1-on); border:1px solid rgba(16,185,129,0.2); padding:6px 14px; border-radius:20px; font-weight:600; }
 .status-dot { width:8px; height:8px; border-radius:50%; background:var(--g1-on); box-shadow: 0 0 6px var(--g1-on); }
+.status-pill.offline { background:rgba(239, 68, 68, 0.1); color:var(--g1-err); border-color:rgba(239, 68, 68, 0.2); }
+.status-dot.offline { background:var(--g1-err); box-shadow: 0 0 6px var(--g1-err); }
 
 /* BUTTONS */
 .btn-accent { background:var(--g1-accent2); color:#fff; border:none; padding:10px 18px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; transition: transform 0.2s, background 0.2s, box-shadow 0.2s; font-family: inherit; }

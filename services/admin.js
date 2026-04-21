@@ -117,6 +117,10 @@ export const adminService = {
         const response = await api.get('/admin/proxmox/summary');
         return response.data;
     },
+    async proxmoxGetHealth() {
+        const response = await api.get('/admin/proxmox/health');
+        return response.data;
+    },
     async listIsos() {
         const response = await api.get('/admin/isos');
         return response.data;
@@ -129,8 +133,8 @@ export const adminService = {
         const response = await api.get('/admin/proxmox/iso-templates');
         return response.data;
     },
-    async getProxmoxStorageIsos() {
-        const response = await api.get('/admin/proxmox/storage-isos');
+    async getProxmoxStorageIsos(node = 'pve', storage = 'local') {
+        const response = await api.get('/admin/proxmox/storage-isos', { params: { node, storage } });
         return response.data;
     },
     async listReservations() {
@@ -165,4 +169,21 @@ export const adminService = {
         });
         return response.data;
     },
+
+    async proxmoxCreateVm(data) {
+        const response = await api.post('/admin/proxmox/create-vm', data);
+        return response.data;
+    }
+    ,
+    async prepareTemplate(data) {
+        const response = await api.post('/admin/proxmox/prepare-template', data);
+        return response.data;
+    },
+
+    // Cluster status accessible à tous les utilisateurs authentifiés
+    async getClusterStatus() {
+        const response = await api.get('/vms/cluster-status');
+        return response.data;
+    },
 };
+

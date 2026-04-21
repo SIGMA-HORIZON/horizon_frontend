@@ -1,7 +1,9 @@
 "use client";
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useVMs } from './VMContext';
 import { useAuth } from '../../context/AuthContext';
+import { adminService } from '../../services/admin';
 
 export default function DashboardHome() {
   const { vms, quota } = useVMs();
@@ -18,6 +20,22 @@ export default function DashboardHome() {
 
   const formattedDate = today.charAt(0).toUpperCase() + today.slice(1);
 
+  const [clusterOnline, setClusterOnline] = React.useState<boolean | null>(null);
+
+  React.useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const data = await adminService.getClusterStatus();
+        setClusterOnline(data.online);
+      } catch (err) {
+        setClusterOnline(false);
+      }
+    };
+    fetchStatus();
+    const timer = setInterval(fetchStatus, 30000);
+    return () => clearInterval(timer);
+  }, []);
+
   // Compute stats
   const totalVMs = vms.length;
   // Les statuts valides pour une VM "active" sont ACTIVE et WARNING
@@ -30,7 +48,9 @@ export default function DashboardHome() {
       <div className="welcome">
         <div className="welcome-left">
           <h2>Bonjour, {user?.first_name || 'Utilisateur'}</h2>
-          <p>{formattedDate} · Cluster Horizon en ligne</p>
+          <p>
+            {formattedDate} · {clusterOnline === null ? 'Vérification...' : clusterOnline ? 'Cluster en ligne' : 'Cluster hors ligne'}
+          </p>
         </div>
         <div className="welcome-right">
           <button className="btn-ghost" onClick={() => router.push('/dashboard/mes-vms')}>Voir mes VMs</button>
