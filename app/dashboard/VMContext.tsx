@@ -36,10 +36,14 @@ interface VMContextType {
   vms: VM[];
   loading: boolean;
   reservations: Reservation[];
+  quota: any;
   refreshVMs: () => Promise<void>;
+  refreshSingleVM: (vmid: string) => Promise<void>;
+  refreshQuota: () => Promise<void>;
   addVM: (data: any) => Promise<any>;
   deleteVM: (vmid: string) => Promise<void>;
   stopVM: (vmid: string) => Promise<void>;
+  startVM: (vmid: string) => Promise<void>;
   extendVM: (vmid: string, hours: number) => Promise<void>;
   updateVM: (vmid: string, data: any) => Promise<void>;
 }
@@ -57,6 +61,17 @@ export const VMProvider = ({ children }: { children: React.ReactNode }) => {
   const [vms, setVMs] = useState<VM[]>([]);
   const [loading, setLoading] = useState(false);
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [quota, setQuota] = useState<any>(null);
+
+  const refreshQuota = useCallback(async () => {
+    if (!user) return;
+    try {
+      const data = await vmService.getQuota();
+      setQuota(data);
+    } catch (error) {
+      console.error("Failed to fetch quota:", error);
+    }
+  }, [user]);
 
   const refreshVMs = useCallback(async () => {
     if (!user) return;
@@ -72,29 +87,49 @@ export const VMProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user]);
 
+  const refreshSingleVM = useCallback(async (vmid: string) => {
+    try {
+      const updatedVm = await vmService.getVm(vmid);
+      setVMs(prev => prev.map(v => v.id === vmid ? updatedVm : v));
+    } catch (error) {
+      console.error("Failed to refresh single VM:", error);
+    }
+  }, []);
+
   useEffect(() => {
     refreshVMs();
-  }, [refreshVMs]);
+    refreshQuota();
+  }, [refreshVMs, refreshQuota]);
 
   const addVM = async (data: any) => {
     const newVM = await vmService.createVm(data);
     await refreshVMs();
+    await refreshQuota();
     return newVM;
   };
 
   const deleteVM = async (vmid: string) => {
     await vmService.deleteVm(vmid);
     await refreshVMs();
+    await refreshQuota();
   };
 
   const stopVM = async (vmid: string) => {
     await vmService.stopVm(vmid);
     await refreshVMs();
+    await refreshQuota();
+  };
+
+  const startVM = async (vmid: string) => {
+    await vmService.startVm(vmid);
+    await refreshVMs();
+    await refreshQuota();
   };
 
   const extendVM = async (vmid: string, hours: number) => {
     await vmService.extendVm(vmid, hours);
     await refreshVMs();
+    await refreshQuota();
   };
 
   const updateVM = async (vmid: string, data: any) => {
@@ -103,9 +138,11 @@ export const VMProvider = ({ children }: { children: React.ReactNode }) => {
     if (data.cpu !== undefined) backendData.vcpu = data.cpu;
     if (data.ram) backendData.ram_gb = parseFloat(data.ram);
     if (data.storage) backendData.storage_gb = parseFloat(data.storage);
+    if (data.name) backendData.name = data.name;
 
     await vmService.updateVm(vmid, backendData);
     await refreshVMs();
+    await refreshQuota();
   };
 
   return (
@@ -113,10 +150,14 @@ export const VMProvider = ({ children }: { children: React.ReactNode }) => {
       vms,
       loading,
       reservations,
+      quota,
       refreshVMs,
+      refreshSingleVM,
+      refreshQuota,
       addVM,
       deleteVM,
       stopVM,
+      startVM,
       extendVM,
       updateVM
     }}>

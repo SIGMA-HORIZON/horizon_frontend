@@ -19,6 +19,8 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
   const [cpu, setCpu] = useState(4);
   const [ram, setRam] = useState(8);
   const [storage, setStorage] = useState(100);
+  const [sessionHours, setSessionHours] = useState(48);
+  const [sshKey, setSshKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -29,7 +31,7 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
           const data = await vmService.listIsos();
           setAvailableIsos(data.items || []);
           if (data.items?.length > 0) {
-            setOs(data.items[0].name);
+            setOs(data.items[0].id);
           }
         } catch (err) {
           console.error("Failed to fetch available ISOs:", err);
@@ -53,14 +55,18 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
         cpu: cpu,
         ram: ram,
         storage: storage,
+        session_hours: sessionHours,
+        ssh_public_key: sshKey
       });
 
       // Reset form
       setName('');
-      if (availableIsos.length > 0) setOs(availableIsos[0].name);
+      if (availableIsos.length > 0) setOs(availableIsos[0].id);
       setCpu(4);
       setRam(8);
       setStorage(100);
+      setSessionHours(48);
+      setSshKey('');
       onClose();
 
       router.push('/dashboard/mes-vms');
@@ -106,7 +112,7 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
             <select style={inputStyle} value={os} onChange={e => setOs(e.target.value)} disabled={isLoading}>
               {availableIsos.length > 0 ? (
                 availableIsos.map(iso => (
-                  <option key={iso.id} value={iso.name}>{iso.name}</option>
+                  <option key={iso.id} value={iso.id}>{iso.name}</option>
                 ))
               ) : (
                 <option disabled>Aucune image disponible</option>
@@ -146,7 +152,26 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
 
           <div className="form-group" style={formGroupStyle}>
             <label style={labelStyle}>Durée de la réservation (heures)</label>
-            <input type="number" style={inputStyle} defaultValue="48" disabled={isLoading} />
+            <input type="number" style={inputStyle} value={sessionHours} onChange={e => setSessionHours(Number(e.target.value))} disabled={isLoading} />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '32px', marginBottom: '20px' }}>
+            <span style={stepNumStyle}>4</span> <span style={stepTextStyle}>Accès & Sécurité</span>
+            <div style={stepDividerStyle}></div>
+          </div>
+
+          <div className="form-group" style={formGroupStyle}>
+            <label style={labelStyle}>Clé SSH Publique (Optionnel)</label>
+            <textarea
+              style={{ ...inputStyle, minHeight: '80px', resize: 'vertical', fontSize: '12px', fontFamily: 'monospace' }}
+              placeholder="ssh-rsa AAAAB3NzaC1yc..."
+              value={sshKey}
+              onChange={e => setSshKey(e.target.value)}
+              disabled={isLoading}
+            ></textarea>
+            <p style={{ fontSize: '11px', color: '#64748B', marginTop: '4px' }}>
+              Si vide, Horizon générera une paire de clés pour vous.
+            </p>
           </div>
 
           <div className="form-group" style={formGroupStyle}>

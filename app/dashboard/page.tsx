@@ -4,7 +4,7 @@ import { useVMs } from './VMContext';
 import { useAuth } from '../../context/AuthContext';
 
 export default function DashboardHome() {
-  const { vms } = useVMs();
+  const { vms, quota } = useVMs();
   const { user } = useAuth();
   const router = useRouter();
 
@@ -88,6 +88,38 @@ export default function DashboardHome() {
           <div className="vsc-meta">Mémoire totale provisionnée</div>
         </div>
 
+      </div>
+
+      {/* Quota Section */}
+      <div className="vm-panel" style={{ marginTop: '32px' }}>
+        <div className="vm-panel-hdr">
+          <div>
+            <h3 className="vm-panel-title">Mes Quotas & Limites</h3>
+            <p className="vm-panel-meta">Ressources allouées selon votre politique d'utilisation.</p>
+          </div>
+          <div className="badge badge-blue">S2 - 2026</div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', padding: '24px' }}>
+          <div className="quota-item">
+            <div style={{ fontSize: '12px', color: 'var(--g1-muted)', marginBottom: '4px' }}>Max VMs Simultanées</div>
+            <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{quota?.active_vms_count || 0} / {quota?.max_simultaneous_vms || 0}</div>
+            <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', marginTop: '8px', overflow: 'hidden' }}>
+              <div style={{ width: `${((quota?.active_vms_count || 0) / (quota?.max_simultaneous_vms || 1)) * 100}%`, height: '100%', background: 'var(--g1-accent2)' }}></div>
+            </div>
+          </div>
+          <div className="quota-item">
+            <div style={{ fontSize: '12px', color: 'var(--g1-muted)', marginBottom: '4px' }}>Quota Horaire (Max / Session)</div>
+            <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{quota?.max_session_duration_hours || 0} <span style={{ fontSize: '13px', fontWeight: 'normal' }}>heures</span></div>
+          </div>
+          <div className="quota-item">
+            <div style={{ fontSize: '12px', color: 'var(--g1-muted)', marginBottom: '4px' }}>Limites par VM</div>
+            <div style={{ fontSize: '13px' }}>
+              <div>• {quota?.max_vcpu_per_vm || 0} vCPU</div>
+              <div>• {quota?.max_ram_gb_per_vm || 0} Go RAM</div>
+              <div>• {quota?.max_storage_gb_per_vm || 0} Go SSD</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Recents VMs Section */}

@@ -21,6 +21,16 @@ export const vmService = {
         return response.data;
     },
 
+    async startVm(id) {
+        const response = await api.post(`/vms/${id}/start`);
+        return response.data;
+    },
+
+    async getConsole(id) {
+        const response = await api.get(`/vms/${id}/console`);
+        return response.data;
+    },
+
     async deleteVm(id) {
         const response = await api.delete(`/vms/${id}`);
         return response.data;
@@ -43,6 +53,11 @@ export const vmService = {
 
     async listIsos() {
         const response = await api.get('/vms/available-isos');
+        return response.data;
+    },
+
+    async getQuota() {
+        const response = await api.get('/vms/quota');
         return response.data;
     }
 };

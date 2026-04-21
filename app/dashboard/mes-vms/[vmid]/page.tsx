@@ -1,16 +1,25 @@
 "use client";
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useVMs } from '../../VMContext';
+import { vmService } from '../../../../services/vms';
 
 export default function VMDetails() {
   const params = useParams();
   const router = useRouter();
   const vmid = params.vmid as string;
-  const { vms, deleteVM, updateVM } = useVMs();
+  const { vms, deleteVM, updateVM, startVM, stopVM, refreshSingleVM } = useVMs();
 
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
+
+  // Polling for real-time usage stats
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshSingleVM(vmid);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [vmid, refreshSingleVM]);
 
   const vm = vms.find(v => v.id === vmid);
 
@@ -33,7 +42,6 @@ export default function VMDetails() {
 
   const startEdit = (field: string, currentValue: string | number) => {
     setEditingField(field);
-    // Remove " Go" from storage/ram so we can edit it as a number 
     setEditValue(String(currentValue).replace(' Go', ''));
   };
 
@@ -52,6 +60,34 @@ export default function VMDetails() {
 
     setEditingField(null);
   };
+
+  const handleConsole = () => {
+    const proxmoxHost = "192.168.1.175";
+    const url = `https://${proxmoxHost}:8006/?console=kvm&novnc=1&node=pve&vmid=${vm.proxmox_vmid}`;
+    window.open(url, 'VMConsole', 'width=1024,height=768,top=100,left=100,menubar=no,toolbar=no,location=no,status=no');
+  };
+
+  const handleDownloadKey = async () => {
+    try {
+      const data = await vmService.getSshKey(vm.id);
+      const blob = new Blob([data.ssh_public_key], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${vm.name}_key.pem`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      refreshSingleVM(vm.id);
+      alert("Clé téléchargée avec succès. Gardez-la précieusement !");
+    } catch (err) {
+      alert("Clé déjà téléchargée ou erreur serveur.");
+    }
+  };
+
+  const sshUser = vm.name.toLowerCase().includes('ubuntu') ? 'ubuntu' : 'debian';
+  const sshCommand = `ssh ${sshUser}@${vm.ip_address || '0.0.0.0'}`;
 
   const tableHeaderStyle = { padding: '12px 16px', borderBottom: '1px solid #E2E8F0', textAlign: 'left' as const, color: '#64748B', fontWeight: 600, fontSize: '12px' };
   const tableDataStyle = { padding: '12px 16px', borderBottom: '1px solid #E2E8F0', fontSize: '14px', color: '#1E293B' };
@@ -74,15 +110,23 @@ export default function VMDetails() {
             <div className="vm-panel-meta">VMID {vm.proxmox_vmid} · LINUX · <span style={{ color: vm.status === 'running' ? 'var(--g1-on)' : '#94A3B8', fontWeight: 600 }}>{vm.status.toUpperCase()}</span></div>
           </div>
           <div className="vm-actions">
-            <button className="btn-vm btn-vm-console">
+            <button
+              className={`btn-vm btn-vm-console ${!['ACTIVE', 'running', 'on'].includes(vm.status) ? 'disabled' : ''}`}
+              onClick={handleConsole}
+              disabled={!['ACTIVE', 'running', 'on'].includes(vm.status)}
+              style={{ opacity: !['ACTIVE', 'running', 'on'].includes(vm.status) ? 0.5 : 1, cursor: !['ACTIVE', 'running', 'on'].includes(vm.status) ? 'not-allowed' : 'pointer' }}
+            >
               <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></svg>Console
             </button>
-            <button className="btn-vm btn-vm-stop" disabled={vm.status !== 'running'}>
-              <svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>Stop
-            </button>
-            <button className="btn-vm">
-              <svg viewBox="0 0 24 24"><path d="M1 4v6h6M23 20v-6h-6" /><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15" /></svg>Redémarrer
-            </button>
+            {['ACTIVE', 'running', 'on'].includes(vm.status) ? (
+              <button className="btn-vm btn-vm-stop" onClick={() => stopVM(vm.id)}>
+                <svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" /><rect x="14" y="4" width="4" height="16" /></svg>Stop
+              </button>
+            ) : (
+              <button className="btn-vm btn-vm-start" onClick={() => startVM(vm.id)}>
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z" /></svg>Démarrer
+              </button>
+            )}
             <button className="btn-vm" onClick={handleDelete} style={{ color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.05)' }}>
               <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" strokeWidth="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" /></svg>Supprimer
             </button>
@@ -90,6 +134,46 @@ export default function VMDetails() {
         </div>
 
         <div style={{ padding: '0 20px 20px' }}>
+          {/* Section Accès SSH */}
+          <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(37, 99, 235, 0.05)', borderRadius: '12px', border: '1px dashed #2563EB' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 600, color: '#2563EB', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M9 9l3 3-3 3" /><path d="M12 15h3" /></svg>
+              Accès Distant SSH
+            </h3>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-start' }}>
+              <div style={{ flex: 1, minWidth: '300px' }}>
+                <p style={{ fontSize: '12px', color: '#64748B', marginBottom: '8px' }}>Commande de connexion :</p>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <code style={{ flex: 1, padding: '10px', background: '#0F172A', color: '#38BDF8', borderRadius: '6px', fontSize: '13px', border: '1px solid #1E293B', overflowX: 'auto' }}>
+                    {sshCommand}
+                  </code>
+                  <button
+                    onClick={() => { navigator.clipboard.writeText(sshCommand); alert("Commande copiée !"); }}
+                    style={{ padding: '8px', background: '#fff', border: '1px solid #E2E8F0', borderRadius: '6px', cursor: 'pointer' }}
+                    title="Copier la commande"
+                  >
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="#64748B" strokeWidth="2" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  </button>
+                </div>
+              </div>
+
+              {vm.ssh_public_key && (
+                <div style={{ minWidth: '200px' }}>
+                  <p style={{ fontSize: '12px', color: '#64748B', marginBottom: '8px' }}>Authentification :</p>
+                  <button
+                    onClick={handleDownloadKey}
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: '#2563EB', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
+                  >
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                    Télécharger Clé Privée
+                  </button>
+                  <p style={{ fontSize: '10px', color: '#94A3B8', marginTop: '4px' }}>* Téléchargement unique autorisé.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--g1-border)' }}>
             <thead>
               <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
@@ -182,5 +266,5 @@ export default function VMDetails() {
         </div>
       </div>
     </div>
-  )
+  );
 }

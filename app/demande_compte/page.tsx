@@ -219,7 +219,7 @@ export default function DemandeCompte() {
             <div className="form-group" style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginTop: '32px' }}>
               <input type="checkbox" id="rules" style={{ marginTop: '4px', width: '20px', height: '20px', cursor: 'pointer' }} required disabled={isLoading} />
               <label htmlFor="rules" style={{ fontSize: '14px', color: '#94A3B8', lineHeight: '1.6' }}>
-                J'ai lu et j'accepte les <a href="#" style={{ color: '#00B4D8', textDecoration: 'underline' }}>Conditions d'utilisation</a> de la plateforme Horizon.
+                J'ai lu et j'accepte les <a href="cgu" style={{ color: '#00B4D8', textDecoration: 'underline' }}>Conditions d'utilisation</a> de la plateforme Horizon.
               </label>
             </div>
 

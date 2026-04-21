@@ -4,7 +4,7 @@ import { useVMs } from '../VMContext';
 
 export default function MesVMs() {
   const router = useRouter();
-  const { vms } = useVMs();
+  const { vms, startVM, stopVM } = useVMs();
 
   return (
     <div className="page active">
@@ -54,9 +54,9 @@ export default function MesVMs() {
                       Détails
                     </button>
                     {['ACTIVE', 'running', 'on'].includes(vm.status) ? (
-                      <button className="btn-vm btn-vm-stop" style={{ padding: '6px 10px', fontSize: '11px' }}>Arrêter</button>
+                      <button className="btn-vm btn-vm-stop" style={{ padding: '6px 10px', fontSize: '11px' }} onClick={() => stopVM(vm.id)}>Arrêter</button>
                     ) : (
-                      <button className="btn-vm btn-vm-start" style={{ padding: '6px 10px', fontSize: '11px' }}>Démarrer</button>
+                      <button className="btn-vm btn-vm-start" style={{ padding: '6px 10px', fontSize: '11px' }} onClick={() => startVM(vm.id)}>Démarrer</button>
                     )}
                   </div>
                 </td>
