@@ -20,6 +20,7 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
     const [ramMb, setRamMb] = useState(2048);
     const [storageGb, setStorageGb] = useState(20);
     const [isLoading, setIsLoading] = useState(false);
+    const [sshPublicKey, setSshPublicKey] = useState('');
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -66,7 +67,8 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
                 vcpu,
                 ram_mb: ramMb,
                 storage_gb: storageGb,
-                net0: "virtio,bridge=vmbr0"
+                net0: "virtio,bridge=vmbr0",
+                ssh_public_key: sshPublicKey || null
             });
 
             onClose();
@@ -152,6 +154,18 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
                             <label style={labelStyle}>Disque (Go)</label>
                             <input type="number" style={inputStyle} value={storageGb} onChange={e => setStorageGb(Number(e.target.value))} required min="5" disabled={isLoading} />
                         </div>
+                    </div>
+
+                    <div className="form-group" style={formGroupStyle}>
+                        <label style={labelStyle}>Clé SSH Publique (Optionnel)</label>
+                        <textarea 
+                            style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' } as React.CSSProperties} 
+                            value={sshPublicKey} 
+                            onChange={e => setSshPublicKey(e.target.value)} 
+                            placeholder="ssh-rsa AAAAB3Nza..." 
+                            disabled={isLoading}
+                        />
+                        <p style={{ fontSize: '11px', color: '#64748B', marginTop: '4px' }}>Nécessite le support Cloud-Init dans l'ISO.</p>
                     </div>
 
                     <div style={footerStyle}>
