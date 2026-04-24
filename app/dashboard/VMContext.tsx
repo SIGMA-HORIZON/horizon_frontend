@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { vmService } from '../../services/vms';
+import { vmService } from '@/services/vms';
 import { useAuth } from '../../context/AuthContext';
 
 export interface VM {
@@ -16,6 +16,7 @@ export interface VM {
   lease_start: string;
   lease_end: string;
   ip_address?: string;
+  ssh_public_key?: string;
   // UI helpers (calculated or mocked)
   cpu_usage?: number;
   ram_usage?: number;
@@ -36,16 +37,20 @@ interface VMContextType {
   vms: VM[];
   loading: boolean;
   reservations: Reservation[];
+  clusterStatus: any;
   quota: any;
   refreshVMs: () => Promise<void>;
-  refreshSingleVM: (vmid: string) => Promise<void>;
+  refreshClusterStatus: () => Promise<void>;
   refreshQuota: () => Promise<void>;
   addVM: (data: any) => Promise<any>;
   deleteVM: (vmid: string) => Promise<void>;
-  stopVM: (vmid: string) => Promise<void>;
   startVM: (vmid: string) => Promise<void>;
+  stopVM: (vmid: string) => Promise<void>;
+  rebootVM: (vmid: string) => Promise<void>;
+  pauseVM: (vmid: string) => Promise<void>;
   extendVM: (vmid: string, hours: number) => Promise<void>;
   updateVM: (vmid: string, data: any) => Promise<void>;
+  refreshSingleVM: (vmid: string) => Promise<void>;
 }
 
 export const VMContext = createContext<VMContextType | null>(null);
@@ -61,24 +66,14 @@ export const VMProvider = ({ children }: { children: React.ReactNode }) => {
   const [vms, setVMs] = useState<VM[]>([]);
   const [loading, setLoading] = useState(false);
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [clusterStatus, setClusterStatus] = useState<any>(null);
   const [quota, setQuota] = useState<any>(null);
-
-  const refreshQuota = useCallback(async () => {
-    if (!user) return;
-    try {
-      const data = await vmService.getQuota();
-      setQuota(data);
-    } catch (error) {
-      console.error("Failed to fetch quota:", error);
-    }
-  }, [user]);
 
   const refreshVMs = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const data = await vmService.listVms();
-      // Map API data to our expected UI format if needed
+      const data = await (vmService as any).listVms();
       setVMs(data.items || []);
     } catch (error) {
       console.error("Failed to fetch VMs:", error);
@@ -87,60 +82,85 @@ export const VMProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [user]);
 
-  const refreshSingleVM = useCallback(async (vmid: string) => {
+  useEffect(() => {
+    refreshVMs();
+    refreshClusterStatus();
+    refreshQuota();
+  }, [refreshVMs]);
+
+  const refreshClusterStatus = async () => {
     try {
-      const updatedVm = await vmService.getVm(vmid);
-      setVMs(prev => prev.map(v => v.id === vmid ? updatedVm : v));
+      const { adminService } = await import('@/services/admin');
+      const status = await adminService.getClusterStatus();
+      setClusterStatus(status);
+    } catch (error) {
+      console.error("Failed to fetch cluster status:", error);
+    }
+  };
+
+  const refreshQuota = async () => {
+    // Placeholder for refreshQuota - implementation should be added when endpoint is available
+    console.warn("refreshQuota is not implemented yet");
+  };
+
+  const refreshSingleVM = async (vmid: string) => {
+    try {
+      const updatedVM = await (vmService as any).getVm(vmid);
+      setVMs(current => current.map(v => v.id === vmid ? updatedVM : v));
     } catch (error) {
       console.error("Failed to refresh single VM:", error);
     }
-  }, []);
-
-  useEffect(() => {
-    refreshVMs();
-    refreshQuota();
-  }, [refreshVMs, refreshQuota]);
+  };
 
   const addVM = async (data: any) => {
-    const newVM = await vmService.createVm(data);
+    const newVM = await (vmService as any).createVm(data);
     await refreshVMs();
     await refreshQuota();
     return newVM;
   };
 
   const deleteVM = async (vmid: string) => {
-    await vmService.deleteVm(vmid);
+    await (vmService as any).deleteVm(vmid);
     await refreshVMs();
     await refreshQuota();
   };
 
   const stopVM = async (vmid: string) => {
-    await vmService.stopVm(vmid);
+    await (vmService as any).stopVm(vmid);
     await refreshVMs();
     await refreshQuota();
   };
 
   const startVM = async (vmid: string) => {
-    await vmService.startVm(vmid);
+    await (vmService as any).startVm(vmid);
     await refreshVMs();
     await refreshQuota();
   };
 
+  const rebootVM = async (vmid: string) => {
+    await (vmService as any).rebootVm(vmid);
+    await refreshVMs();
+  };
+
+  const pauseVM = async (vmid: string) => {
+    await (vmService as any).pauseVm(vmid);
+    await refreshVMs();
+  };
+
   const extendVM = async (vmid: string, hours: number) => {
-    await vmService.extendVm(vmid, hours);
+    await (vmService as any).extendVm(vmid, hours);
     await refreshVMs();
     await refreshQuota();
   };
 
   const updateVM = async (vmid: string, data: any) => {
-    // Mapping frontend fields to backend if necessary
     const backendData: any = {};
     if (data.cpu !== undefined) backendData.vcpu = data.cpu;
     if (data.ram) backendData.ram_gb = parseFloat(data.ram);
     if (data.storage) backendData.storage_gb = parseFloat(data.storage);
     if (data.name) backendData.name = data.name;
 
-    await vmService.updateVm(vmid, backendData);
+    await (vmService as any).updateVm(vmid, backendData);
     await refreshVMs();
     await refreshQuota();
   };
@@ -150,16 +170,20 @@ export const VMProvider = ({ children }: { children: React.ReactNode }) => {
       vms,
       loading,
       reservations,
+      clusterStatus,
       quota,
       refreshVMs,
-      refreshSingleVM,
+      refreshClusterStatus,
       refreshQuota,
       addVM,
       deleteVM,
-      stopVM,
       startVM,
+      stopVM,
+      rebootVM,
+      pauseVM,
       extendVM,
-      updateVM
+      updateVM,
+      refreshSingleVM
     }}>
       {children}
     </VMContext.Provider>

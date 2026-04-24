@@ -26,6 +26,16 @@ export const vmService = {
         return response.data;
     },
 
+    async rebootVm(id) {
+        const response = await api.post(`/vms/${id}/reboot`);
+        return response.data;
+    },
+
+    async pauseVm(id) {
+        const response = await api.post(`/vms/${id}/pause`);
+        return response.data;
+    },
+
     async getConsole(id) {
         const response = await api.get(`/vms/${id}/console`);
         return response.data;
@@ -53,11 +63,6 @@ export const vmService = {
 
     async listIsos() {
         const response = await api.get('/vms/available-isos');
-        return response.data;
-    },
-
-    async getQuota() {
-        const response = await api.get('/vms/quota');
         return response.data;
     }
 };

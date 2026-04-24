@@ -23,6 +23,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.25",
+    "@types/novnc__novnc": "^1.6.0",
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.22",
