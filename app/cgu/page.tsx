@@ -290,20 +290,35 @@ export default function CGUPage() {
             <div className="sanction-cards">
               <div className="sanction-card">
                 <div className="s-level level-1">Niveau 1<br/>(Avert.)</div>
-                <div className="s-col">Quota mineur dépassé</div>
-                <div className="s-col">Avertissement automatique</div>
+                <div className="s-col">Quota mineur dépassé ou comportement inhabituel.</div>
+                <div className="s-col">Avertissement automatique par e-mail.</div>
               </div>
               <div className="sanction-card">
                 <div className="s-level level-2">Niveau 2<br/>(Suspens.)</div>
-                <div className="s-col">Violation répétée</div>
-                <div className="s-col">Suspension temporaire (24h)</div>
+                <div className="s-col">Violation répétée ou non-réponse aux avertissements.</div>
+                <div className="s-col">Suspension temporaire (24h à 7 jours).</div>
               </div>
               <div className="sanction-card">
                 <div className="s-level level-3">Niveau 3<br/>(Excl.)</div>
-                <div className="s-col">Incident grave (minage, fraudes)</div>
-                <div className="s-col">Suspension immédiate + possible suppression</div>
+                <div className="s-col">Incident grave (minage, fraudes, piratage).</div>
+                <div className="s-col">Suspension immédiate + suppression des données.</div>
               </div>
             </div>
+
+            <div className="sub-divider"></div>
+
+            <div className="sub-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              Gestion des refus de demande de compte
+            </div>
+            <p className="body-text">L'équipe d'administration se réserve le droit de refuser toute demande ne répondant pas aux critères de la plateforme. Les motifs fréquents de refus incluent :</p>
+            <ul className="doc-list">
+              <li><strong>Informations incorrectes ou incomplètes</strong> : Nom, prénom ou affiliation non vérifiables.</li>
+              <li><strong>Non-respect des conditions d'utilisation</strong> : Tentative de contournement du processus de demande.</li>
+              <li><strong>Activité suspecte ou frauduleuse</strong> : Utilisation d'adresses e-mail jetables ou usurpation d'identité.</li>
+              <li><strong>Ressources insuffisantes</strong> : Capacité du cluster atteinte pour le type de ressources demandées.</li>
+              <li><strong>Demande non conforme</strong> : Projet ne rentrant pas dans le cadre académique ou de recherche de l'ENSPY.</li>
+            </ul>
             <div className="section-end"></div>
           </section>
 
@@ -321,16 +336,51 @@ export default function CGUPage() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               Modifications
             </h2>
-            <p className="body-text">L'équipe se réserve le droit de modifier ces conditions, avec un préavis d'au moins 7 jours par email aux utilisateurs actifs.</p>
+            <p className="body-text">L'équipe se réserve le droit de modifier ces conditions à tout moment. Les utilisateurs seront informés par e-mail au moins 7 jours avant l'entrée en vigueur des changements.</p>
+            
+            <div className="sub-heading">Historique des versions</div>
+            <table className="quota-table">
+              <thead>
+                <tr><th>Version</th><th>Date</th><th>Description des changements</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>v1.1</td><td>26 Avril 2026</td><td>Précisions sur les motifs de refus et mise à jour des contacts.</td></tr>
+                <tr><td>v1.0</td><td>01 Avril 2025</td><td>Version initiale des conditions d'utilisation.</td></tr>
+              </tbody>
+            </table>
             <div className="section-end"></div>
           </section>
 
           <section className="cgu-section" id="contact">
             <h2 className="section-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-              Contact
+              Contact et réclamations
             </h2>
-            <p className="body-text">Pour toute question, demande de suppression des données, ou problème de sécurité, contactez l'équipe Horizon à contact@horizon-enspy.cm.</p>
+            
+            <div className="contact-info-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+              <div className="contact-item">
+                <div style={{ fontWeight: 600, color: 'var(--cyan)', marginBottom: '8px' }}>Email Support</div>
+                <div style={{ fontSize: '14px', opacity: 0.8 }}>contact@horizon-enspy.cm</div>
+              </div>
+              <div className="contact-item">
+                <div style={{ fontWeight: 600, color: 'var(--cyan)', marginBottom: '8px' }}>Téléphone</div>
+                <div style={{ fontSize: '14px', opacity: 0.8 }}>+237 2XX XXX XXX</div>
+              </div>
+              <div className="contact-item">
+                <div style={{ fontWeight: 600, color: 'var(--cyan)', marginBottom: '8px' }}>Disponibilité</div>
+                <div style={{ fontSize: '14px', opacity: 0.8 }}>Lun - Ven : 08h00 - 17h00</div>
+              </div>
+            </div>
+
+            <div className="sub-heading">Formulaire de contact rapide</div>
+            <form className="contact-form" style={{ background: 'rgba(255,255,255,0.03)', padding: '24px', borderRadius: '12px', border: '1px solid var(--border-m)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <input type="text" placeholder="Votre nom" style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-m)', padding: '12px', borderRadius: '6px', color: 'white' }} />
+                <input type="email" placeholder="Email institutionnel" style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-m)', padding: '12px', borderRadius: '6px', color: 'white' }} />
+              </div>
+              <textarea placeholder="Votre message ou réclamation..." rows={4} style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-m)', padding: '12px', borderRadius: '6px', color: 'white', marginBottom: '16px' }}></textarea>
+              <button type="button" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>ENVOYER LE MESSAGE</button>
+            </form>
             <div className="section-end"></div>
           </section>
 
