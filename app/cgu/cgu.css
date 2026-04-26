@@ -16,6 +16,23 @@
   background: var(--bg-deep);
 }
 
+.light-theme .cgu-theme {
+  --bg-sidebar: #FFFFFF;
+  --bg-card:    #FFFFFF;
+  --bg-hover:   #F1F5F9;
+  --border:     rgba(0,0,0,0.1);
+  --border-m:   rgba(0,0,0,0.15);
+  --text:       #0F172A;
+  --muted:      #475569;
+  --dim:        #94A3B8;
+  background: #F8FAFC;
+}
+
+.light-theme .sb-link.active { background: #EFF6FF; color: #2563EB; }
+.light-theme .contact-form { background: #F1F5F9 !important; border-color: var(--border-m) !important; }
+.light-theme .contact-form input, .light-theme .contact-form textarea { background: #FFFFFF !important; border-color: var(--border-m) !important; color: #0F172A !important; }
+
+
 .cgu-page-wrap {
   display: grid;
   grid-template-columns: 260px 1fr;

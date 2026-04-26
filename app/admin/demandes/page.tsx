@@ -207,9 +207,27 @@ export default function DemandesComptes() {
                             </p>
                             <div style={{ marginBottom: '24px' }}>
                                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#F8FAFC', marginBottom: '8px' }}>Raison du rejet</label>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                                    {[
+                                        'Informations incorrectes ou incomplètes',
+                                        'Profil non conforme aux CGU',
+                                        'Activité suspecte détectée',
+                                        'Ressources insuffisantes',
+                                        'Projet non académique'
+                                    ].map(reason => (
+                                        <button 
+                                            key={reason}
+                                            type="button"
+                                            onClick={() => setRejectReason(reason)}
+                                            style={{ fontSize: '11px', padding: '4px 8px', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--g1-border)', color: 'var(--g1-muted)', borderRadius: '4px', cursor: 'pointer' }}
+                                        >
+                                            {reason}
+                                        </button>
+                                    ))}
+                                </div>
                                 <textarea
                                     required
-                                    placeholder="Ex: Justification insuffisante, Profil non conforme..."
+                                    placeholder="Ou saisissez une raison personnalisée..."
                                     value={rejectReason}
                                     onChange={e => setRejectReason(e.target.value)}
                                     style={{ width: '100%', minHeight: '100px', padding: '12px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--g1-border)', borderRadius: '8px', color: '#F8FAFC', fontSize: '14px', outline: 'none', resize: 'vertical' }}
