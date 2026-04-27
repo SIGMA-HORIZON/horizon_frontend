@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useVMs } from '../../VMContext';
 import { vmService } from '@/services/vms';
 import { Icon } from '@/components/Icon';
+import SSHTerminal from './SSHTerminal';
+import { Modal } from '@/components/Modal';
 
 export default function VMDetails() {
   const params = useParams();
@@ -13,6 +15,23 @@ export default function VMDetails() {
 
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
+  const [showTerminal, setShowTerminal] = useState(false);
+  
+  // Modal states
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string | React.ReactNode;
+    type: 'info' | 'danger' | 'success';
+    onConfirm?: () => void;
+    confirmLabel?: string;
+    showConfirm?: boolean;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
 
   // Polling for real-time usage stats
   useEffect(() => {
@@ -27,6 +46,7 @@ export default function VMDetails() {
   if (!vm) return <VMNotFound vmid={vmid} onBack={() => router.push('/dashboard/mes-vms')} />;
 
   const isRunning = ['ACTIVE', 'running', 'on'].includes(vm.status);
+  const isExpired = vm.status === 'EXPIRED';
 
   const handleEdit = (field: string, val: any) => {
     setEditingField(field);
@@ -52,10 +72,22 @@ export default function VMDetails() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      alert("Clé SSH téléchargée avec succès. Elle a été supprimée du serveur.");
+      setModalConfig({
+        isOpen: true,
+        title: "Succès",
+        message: "Clé SSH téléchargée avec succès. Elle a été supprimée du serveur.",
+        type: 'success',
+        showConfirm: false
+      });
       refreshSingleVM(vm.id);
     } catch (error: any) {
-      alert(error.response?.data?.detail || "Erreur lors du téléchargement.");
+      setModalConfig({
+        isOpen: true,
+        title: "Erreur",
+        message: error.response?.data?.detail || "Erreur lors du téléchargement.",
+        type: 'danger',
+        showConfirm: false
+      });
     }
   };
 
@@ -70,8 +102,8 @@ export default function VMDetails() {
           <div className="vm-hero-info">
             <h1>{vm.name}</h1>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
-              <span className={`badge ${isRunning ? 'badge-on' : 'badge-off'}`}>
-                {isRunning ? '● EN LIGNE' : '○ HORS LIGNE'}
+              <span className={`badge ${isExpired ? 'badge-expired' : isRunning ? 'badge-on' : 'badge-off'}`}>
+                {isExpired ? '○ EXPIRÉE' : isRunning ? '● EN LIGNE' : '○ HORS LIGNE'}
               </span>
               <span style={{ color: 'var(--g1-muted)', fontSize: '13px' }}>ID: {vm.proxmox_vmid}</span>
             </div>
@@ -79,28 +111,64 @@ export default function VMDetails() {
         </div>
 
         <div className="vm-actions">
-          <button className="btn-accent" onClick={() => router.push(`/dashboard/mes-vms/${vm.id}/console`)}>
+          <button 
+            className="btn-accent" 
+            onClick={() => router.push(`/dashboard/mes-vms/${vm.id}/console`)}
+            disabled={isExpired}
+          >
             <Icon name="console" strokeWidth={2.5} />
             Console VNC
           </button>
           
           <ActionButtons 
             isRunning={isRunning} 
+            isExpired={isExpired}
             onStart={() => startVM(vm.id)} 
             onStop={() => stopVM(vm.id)} 
             onReboot={() => rebootVM(vm.id)} 
             onDelete={() => {
-              if (confirm("Supprimer cette VM ?")) {
-                deleteVM(vm.id);
-                router.push('/dashboard/mes-vms');
-              }
+              setModalConfig({
+                isOpen: true,
+                title: "Supprimer la VM",
+                message: <p>Êtes-vous sûr de vouloir supprimer définitivement la machine <strong>{vm.name}</strong> ? Cette action est irréversible.</p>,
+                type: 'danger',
+                confirmLabel: 'Supprimer',
+                onConfirm: () => {
+                  deleteVM(vm.id);
+                  router.push('/dashboard/mes-vms');
+                }
+              });
             }}
           />
         </div>
       </div>
 
+      {isExpired && (
+        <div className="expiry-banner">
+          <div className="expiry-banner-content">
+            <div className="expiry-icon-wrap">
+              <Icon name="info" size={24} />
+            </div>
+            <div className="expiry-text">
+              <h3>Session expirée</h3>
+              <p>Cette machine virtuelle est verrouillée car sa session a expiré le {new Date(vm.lease_end).toLocaleString()}.</p>
+            </div>
+          </div>
+          <button className="btn-extend" onClick={() => setModalConfig({
+            isOpen: true,
+            title: "Prolongation",
+            message: "La fonctionnalité de prolongation de session est en cours de déploiement et sera disponible prochainement.",
+            type: 'info',
+            showConfirm: false
+          })}>
+            <Icon name="reboot" />
+            Étendre la durée
+          </button>
+        </div>
+      )}
+
       {/* 2. STATS GRID */}
-      <div className="vm-stats-grid">
+      <div className={`vm-stats-grid ${isExpired ? 'vm-locked' : ''}`}>
         <StatCard label="vCPU" value={`${vm.vcpu} Cores`} usage={vm.cpu_usage} icon="cpu" />
         <StatCard label="RAM" value={`${vm.ram_gb} Go`} usage={vm.ram_usage} icon="ram" />
         <StatCard label="Stockage" value={`${vm.storage_gb} Go`} icon="disk" />
@@ -116,15 +184,41 @@ export default function VMDetails() {
           </div>
           <div className="details-card-body">
             <EditableRow label="Nom de la machine" value={vm.name} field="name" editingField={editingField} editValue={editValue} onEdit={handleEdit} onSave={saveEdit} onChange={setEditValue} />
-            <div className="detail-row"><span className="detail-label">OS</span><span className="detail-value">Ubuntu 22.04 LTS</span></div>
+            <div className="detail-row"><span className="detail-label">OS</span><span className="detail-value">{vm.os_name || 'Inconnu'}</span></div>
             <EditableRow label="vCPU" value={`${vm.vcpu} Cores`} field="cpu" editingField={editingField} editValue={editValue} onEdit={handleEdit} onSave={saveEdit} onChange={setEditValue} type="number" />
             <EditableRow label="RAM" value={`${vm.ram_gb} Go`} field="ram" editingField={editingField} editValue={editValue} onEdit={handleEdit} onSave={saveEdit} onChange={setEditValue} type="number" />
             <div className="detail-row"><span className="detail-label">Créée le</span><span className="detail-value">{new Date(vm.lease_start).toLocaleDateString()}</span></div>
           </div>
         </div>
 
-        <SSHCard ip={vm.ip_address} hasKey={!!vm.ssh_public_key} onDownload={downloadKey} />
+        <SSHCard 
+          ip={vm.ip_address} 
+          hasKey={!!vm.ssh_public_key} 
+          onDownload={downloadKey} 
+          osFamily={vm.os_family} 
+          onOpenTerminal={() => setShowTerminal(true)}
+          disabled={isExpired}
+        />
       </div>
+
+      {showTerminal && (
+        <SSHTerminal 
+          vmid={vm.id} 
+          onClose={() => setShowTerminal(false)} 
+        />
+      )}
+
+      <Modal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+        title={modalConfig.title}
+        type={modalConfig.type}
+        onConfirm={modalConfig.onConfirm}
+        confirmLabel={modalConfig.confirmLabel}
+        showConfirm={modalConfig.showConfirm}
+      >
+        {modalConfig.message}
+      </Modal>
     </div>
   );
 }
@@ -183,9 +277,9 @@ function EditableRow({ label, value, field, editingField, editValue, onEdit, onS
   );
 }
 
-function SSHCard({ ip, hasKey, onDownload }: any) {
+function SSHCard({ ip, hasKey, onDownload, osFamily, onOpenTerminal, disabled }: any) {
   return (
-    <div className="details-card" style={{ borderTopColor: 'var(--g1-accent2)' }}>
+    <div className={`details-card ${disabled ? 'vm-locked' : ''}`} style={{ borderTopColor: 'var(--g1-accent2)' }}>
       <div className="details-card-header">
         <Icon name="lock" size={18} />
         Accès SSH
@@ -193,16 +287,25 @@ function SSHCard({ ip, hasKey, onDownload }: any) {
       <div className="pm-body">
         <p style={{ fontSize: '13px', color: 'var(--g1-muted)', marginBottom: '12px' }}>Connectez-vous via terminal :</p>
         <code style={{ display: 'block', background: '#030610', padding: '12px', borderRadius: '8px', border: '1px solid var(--g1-border)', color: 'var(--g1-accent)', fontSize: '12px' }}>
-          ssh ubuntu@{ip || 'IP'}
+          ssh {osFamily === 'WINDOWS' ? 'Administrator' : 'user'}@{ip || 'IP'}
         </code>
-        {hasKey ? (
-          <button className="btn-primary" style={{ width: '100%', marginTop: '16px' }} onClick={onDownload}>
-            <Icon name="download" />
-            Télécharger la clé (.pub)
+        
+        <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+          {hasKey && (
+            <button className="btn-primary" style={{ flex: 1 }} onClick={onDownload}>
+              <Icon name="download" />
+              Clé
+            </button>
+          )}
+          <button className="btn-accent" style={{ flex: 1 }} onClick={onOpenTerminal}>
+            <Icon name="console" />
+            Terminal
           </button>
-        ) : (
-          <div className="pm-alert pm-alert-warn" style={{ marginTop: '16px' }}>
-            <p>Clé déjà téléchargée.</p>
+        </div>
+
+        {!hasKey && (
+          <div className="pm-alert pm-alert-info" style={{ marginTop: '16px' }}>
+            <p style={{ fontSize: '12px' }}>Clé déjà téléchargée ou fournie.</p>
           </div>
         )}
       </div>
@@ -210,19 +313,19 @@ function SSHCard({ ip, hasKey, onDownload }: any) {
   );
 }
 
-function ActionButtons({ isRunning, onStart, onStop, onReboot, onDelete }: any) {
+function ActionButtons({ isRunning, isExpired, onStart, onStop, onReboot, onDelete }: any) {
   return (
     <>
       {isRunning ? (
-        <button className="btn-vm btn-vm-stop" onClick={onStop}>
+        <button className="btn-vm btn-vm-stop" onClick={onStop} disabled={isExpired}>
           <Icon name="stop" />Arrêter
         </button>
       ) : (
-        <button className="btn-vm btn-vm-start" onClick={onStart}>
+        <button className="btn-vm btn-vm-start" onClick={onStart} disabled={isExpired}>
           <Icon name="start" />Démarrer
         </button>
       )}
-      <button className="btn-vm" onClick={onReboot}>
+      <button className="btn-vm" onClick={onReboot} disabled={isExpired}>
         <Icon name="reboot" />Reboot
       </button>
       <button className="btn-vm" style={{ color: 'var(--g1-err)' }} onClick={onDelete}>

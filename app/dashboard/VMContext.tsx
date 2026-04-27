@@ -20,6 +20,8 @@ export interface VM {
   // UI helpers (calculated or mocked)
   cpu_usage?: number;
   ram_usage?: number;
+  os_name?: string;
+  os_family?: string;
 }
 
 export interface Reservation {

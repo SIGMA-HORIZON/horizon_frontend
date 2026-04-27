@@ -31,21 +31,19 @@ export default function ConsoleViewer() {
                 const WS_BASE_URL = API_BASE_URL.replace('http', 'ws');
 
                 // 1. Fetch the VNC ticket and port from the backend
-                const resp = await fetch(`${API_BASE_URL}/vms/${vmid}/vnc-ticket`, {
-                    method: 'POST',
+                const response = await fetch(`${API_BASE_URL}/vms/${vmid}/console`, {
+                    method: 'GET',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     }
                 });
-
-                if (!resp.ok) {
-                    const errorText = await resp.text();
-                    throw new Error(`Failed to get VNC ticket: ${resp.status} - ${errorText}`);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Failed to get VNC ticket: ${response.status} - ${errorText}`);
                 }
 
-                const json = await resp.json();
-                const ticketData = json.data;
+                const ticketData = await response.json();
                 const ticket = ticketData?.ticket || '';
                 const port = ticketData?.port || '';
 
@@ -57,7 +55,7 @@ export default function ConsoleViewer() {
 
                 // 2. Connect to our backend WebSocket proxy
                 const encodedTicket = encodeURIComponent(ticket);
-                const wsUrl = `${WS_BASE_URL}/vnc/${vmid}?port=${port}&ticket=${encodedTicket}`;
+                const wsUrl = `${WS_BASE_URL}/vms/vnc/${vmid}?port=${port}&ticket=${encodedTicket}`;
                 console.log(`Connecting to VNC at: ${wsUrl}`);
 
                 // Dynamic import noVNC

@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { accountService } from '@/services/accounts';
+import { Modal } from '@/components/Modal';
 
 interface AccountRequest {
     id: string;
@@ -21,6 +22,19 @@ export default function DemandesComptes() {
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
 
+    // Dynamic Modal for alerts
+    const [alertModal, setAlertModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        type: 'info' | 'danger' | 'success';
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'info'
+    });
+
     useEffect(() => {
         fetchRequests();
     }, []);
@@ -32,7 +46,12 @@ export default function DemandesComptes() {
             setRequests(data.items || []);
         } catch (error) {
             console.error('Error fetching requests:', error);
-            alert('Erreur lors du chargement des demandes');
+            setAlertModal({
+                isOpen: true,
+                title: "Erreur",
+                message: "Erreur lors du chargement des demandes",
+                type: 'danger'
+            });
         } finally {
             setLoading(false);
         }
@@ -42,13 +61,23 @@ export default function DemandesComptes() {
         if (!selectedRequest) return;
         try {
             await accountService.approveRequest(selectedRequest.id);
-            alert(`Le compte de ${selectedRequest.first_name} a été approuvé`);
+            setAlertModal({
+                isOpen: true,
+                title: "Approuvé",
+                message: `Le compte de ${selectedRequest.first_name} a été approuvé avec succès.`,
+                type: 'success'
+            });
             setIsApproveModalOpen(false);
             setSelectedRequest(null);
             fetchRequests();
         } catch (error) {
             console.error('Error approving request:', error);
-            alert('Erreur lors de l\'approbation');
+            setAlertModal({
+                isOpen: true,
+                title: "Erreur",
+                message: "Une erreur est survenue lors de l'approbation.",
+                type: 'danger'
+            });
         }
     };
 
@@ -56,14 +85,24 @@ export default function DemandesComptes() {
         if (!selectedRequest || !rejectReason) return;
         try {
             await accountService.rejectRequest(selectedRequest.id, rejectReason);
-            alert(`La demande de ${selectedRequest.first_name} a été rejetée`);
+            setAlertModal({
+                isOpen: true,
+                title: "Rejeté",
+                message: `La demande de ${selectedRequest.first_name} a été rejetée.`,
+                type: 'info'
+            });
             setIsRejectModalOpen(false);
             setSelectedRequest(null);
             setRejectReason('');
             fetchRequests();
         } catch (error) {
             console.error('Error rejecting request:', error);
-            alert('Erreur lors du rejet');
+            setAlertModal({
+                isOpen: true,
+                title: "Erreur",
+                message: "Une erreur est survenue lors du rejet.",
+                type: 'danger'
+            });
         }
     };
 
@@ -154,86 +193,56 @@ export default function DemandesComptes() {
                 </div>
             </div>
 
-            {/* Approve Modal */}
-            {isApproveModalOpen && selectedRequest && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
-                    <div style={{ background: '#0F1623', borderRadius: '16px', width: '100%', maxWidth: '500px', border: '1px solid var(--g1-border)', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)' }}>
-                        <div style={{ padding: '24px 32px 16px', borderBottom: '1px solid var(--g1-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#F8FAFC', margin: 0 }}>Approuver la demande</h2>
-                            <button onClick={() => setIsApproveModalOpen(false)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}>
-                                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                            </button>
-                        </div>
-                        <div style={{ padding: '24px 32px' }}>
-                            <p style={{ color: 'var(--g1-text)', marginBottom: '16px' }}>
-                                Voulez-vous approuver la demande de creation de compte pour <strong>{selectedRequest.first_name} {selectedRequest.last_name}</strong> ?
-                            </p>
-                            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
-                                <div style={{ fontSize: '12px', color: 'var(--g1-muted)', marginBottom: '4px' }}>Justification fournie :</div>
-                                <div style={{ color: 'var(--g1-text)', fontSize: '14px', fontStyle: 'italic' }}>"{selectedRequest.justification || 'Aucune justification fournie.'}"</div>
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                                <button
-                                    onClick={() => setIsApproveModalOpen(false)}
-                                    style={{ padding: '10px 18px', background: 'transparent', border: '1px solid var(--g1-border)', color: '#F8FAFC', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
-                                >
-                                    Annuler
-                                </button>
-                                <button
-                                    onClick={handleApprove}
-                                    style={{ padding: '10px 18px', background: '#2563EB', border: 'none', color: '#fff', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
-                                >
-                                    Confirmer l'approbation
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+            <Modal
+                isOpen={isApproveModalOpen}
+                onClose={() => setIsApproveModalOpen(false)}
+                title="Approuver la demande"
+                type="success"
+                confirmLabel="Confirmer l'approbation"
+                onConfirm={handleApprove}
+            >
+                <p style={{ color: 'var(--g1-text)', marginBottom: '16px' }}>
+                    Voulez-vous approuver la demande de création de compte pour <strong>{selectedRequest?.first_name} {selectedRequest?.last_name}</strong> ?
+                </p>
+                <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px' }}>
+                    <div style={{ fontSize: '12px', color: 'var(--g1-muted)', marginBottom: '4px' }}>Justification fournie :</div>
+                    <div style={{ color: 'var(--g1-text)', fontSize: '14px', fontStyle: 'italic' }}>"{selectedRequest?.justification || 'Aucune justification fournie.'}"</div>
                 </div>
-            )}
+            </Modal>
 
-            {/* Reject Modal */}
-            {isRejectModalOpen && selectedRequest && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
-                    <div style={{ background: '#0F1623', borderRadius: '16px', width: '100%', maxWidth: '500px', border: '1px solid var(--g1-border)', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)' }}>
-                        <div style={{ padding: '24px 32px 16px', borderBottom: '1px solid var(--g1-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#F8FAFC', margin: 0 }}>Rejeter la demande</h2>
-                            <button onClick={() => setIsRejectModalOpen(false)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}>
-                                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                            </button>
-                        </div>
-                        <div style={{ padding: '24px 32px' }}>
-                            <p style={{ color: 'var(--g1-text)', marginBottom: '20px' }}>
-                                Veuillez indiquer la raison du rejet pour <strong>{selectedRequest.first_name} {selectedRequest.last_name}</strong>. Cet utilisateur recevra un e-mail avec cette explication.
-                            </p>
-                            <div style={{ marginBottom: '24px' }}>
-                                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#F8FAFC', marginBottom: '8px' }}>Raison du rejet</label>
-                                <textarea
-                                    required
-                                    placeholder="Ex: Justification insuffisante, Profil non conforme..."
-                                    value={rejectReason}
-                                    onChange={e => setRejectReason(e.target.value)}
-                                    style={{ width: '100%', minHeight: '100px', padding: '12px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--g1-border)', borderRadius: '8px', color: '#F8FAFC', fontSize: '14px', outline: 'none', resize: 'vertical' }}
-                                />
-                            </div>
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                                <button
-                                    onClick={() => setIsRejectModalOpen(false)}
-                                    style={{ padding: '10px 18px', background: 'transparent', border: '1px solid var(--g1-border)', color: '#F8FAFC', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}
-                                >
-                                    Annuler
-                                </button>
-                                <button
-                                    onClick={handleReject}
-                                    disabled={!rejectReason}
-                                    style={{ padding: '10px 18px', background: '#EF4444', border: 'none', color: '#fff', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', opacity: !rejectReason ? 0.5 : 1 }}
-                                >
-                                    Confirmer le rejet
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <Modal
+                isOpen={isRejectModalOpen}
+                onClose={() => {
+                    setIsRejectModalOpen(false);
+                    setRejectReason('');
+                }}
+                title="Rejeter la demande"
+                type="danger"
+                confirmLabel="Confirmer le rejet"
+                onConfirm={handleReject}
+                showConfirm={!!rejectReason}
+            >
+                <p style={{ color: 'var(--g1-text)', marginBottom: '20px' }}>
+                    Veuillez indiquer la raison du rejet pour <strong>{selectedRequest?.first_name} {selectedRequest?.last_name}</strong>.
+                </p>
+                <textarea
+                    required
+                    placeholder="Ex: Justification insuffisante, Profil non conforme..."
+                    value={rejectReason}
+                    onChange={e => setRejectReason(e.target.value)}
+                    style={{ width: '100%', minHeight: '100px', padding: '12px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--g1-border)', borderRadius: '8px', color: '#F8FAFC', fontSize: '14px', outline: 'none', resize: 'vertical' }}
+                />
+            </Modal>
+
+            <Modal
+                isOpen={alertModal.isOpen}
+                onClose={() => setAlertModal({ ...alertModal, isOpen: false })}
+                title={alertModal.title}
+                type={alertModal.type}
+                showConfirm={false}
+            >
+                {alertModal.message}
+            </Modal>
         </div>
     );
 }

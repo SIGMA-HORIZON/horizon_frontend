@@ -55,7 +55,7 @@ export default function MesVMs() {
                   </div>
                 <div className="stat-card-footer" style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid var(--g1-border)' }}>
                    <Icon name="vms" size={14} />
-                   Linux Ubuntu 22.04
+                   {vm.os_name || 'Inconnu'}
                 </div>
               </div>
 

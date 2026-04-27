@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { accountService } from '@/services/accounts';
+import { Modal } from '@/components/Modal';
 
 interface User {
   id: string;
@@ -27,6 +28,19 @@ export default function Utilisateurs() {
     role: 'USER'
   });
 
+  // Dynamic Modal for alerts/info
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'info' | 'danger' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -38,7 +52,12 @@ export default function Utilisateurs() {
       setUsers(data.items || []);
     } catch (error) {
       console.error('Error fetching users:', error);
-      alert('Erreur lors du chargement des utilisateurs');
+      setModalConfig({
+        isOpen: true,
+        title: "Erreur",
+        message: "Erreur lors du chargement des utilisateurs",
+        type: 'danger'
+      });
     } finally {
       setLoading(false);
     }
@@ -49,7 +68,12 @@ export default function Utilisateurs() {
     // Implementation for direct user creation via API if needed
     // For now we just close the modal as the user requested "validation of requests"
     setIsModalOpen(false);
-    alert('Fonctionnalité de création directe en cours de développement. Utilisez les demandes de compte.');
+    setModalConfig({
+      isOpen: true,
+      title: "Création directe",
+      message: "La fonctionnalité de création directe est en cours de développement. Pour le moment, veuillez utiliser les demandes de compte.",
+      type: 'info'
+    });
   };
 
   const getInitials = (fn: string, ln: string) => {
@@ -131,27 +155,28 @@ export default function Utilisateurs() {
         </div>
       </div>
 
-      {/* Modal is kept but simplified for now */}
-      {isModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
-          <div style={{ background: '#0F1623', borderRadius: '16px', width: '100%', maxWidth: '450px', border: '1px solid var(--g1-border)', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)' }}>
-            <div style={{ padding: '24px 32px 16px', borderBottom: '1px solid var(--g1-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#F8FAFC', margin: 0 }}>Créer un utilisateur</h2>
-              <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}>
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </button>
-            </div>
-            <div style={{ padding: '24px 32px' }}>
-              <p style={{ color: 'var(--g1-muted)', fontSize: '14px', marginBottom: '24px' }}>
-                Pour créer un utilisateur, demandez-lui de soumettre une demande via la page d'inscription, puis validez-la dans l'onglet "Demandes de comptes".
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button onClick={() => setIsModalOpen(false)} style={{ padding: '10px 18px', background: '#2563EB', border: 'none', color: '#fff', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Compris</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Créer un utilisateur"
+        type="info"
+        confirmLabel="Compris"
+        onConfirm={() => setIsModalOpen(false)}
+      >
+        <p>
+          Pour créer un utilisateur, demandez-lui de soumettre une demande via la page d'inscription, puis validez-la dans l'onglet "Demandes de comptes".
+        </p>
+      </Modal>
+
+      <Modal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+        title={modalConfig.title}
+        type={modalConfig.type}
+        showConfirm={false}
+      >
+        {modalConfig.message}
+      </Modal>
     </div>
   );
 }

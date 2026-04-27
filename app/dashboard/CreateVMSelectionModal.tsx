@@ -43,8 +43,8 @@ export default function CreateVMSelectionModal({
                             <svg viewBox="0 0 24 24" width="32" height="32" stroke="#2563EB" strokeWidth="2" fill="none"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                         </div>
                         <div style={cardContentStyle}>
-                            <h3 style={cardTitleStyle}>Depuis un Template</h3>
-                            <p style={cardDescStyle}>Instanciation à partir d'un modèle : évite l'étape d'installation de l'OS.</p>
+                            <h3 style={cardTitleStyle}>Créer une VM</h3>
+                            <p style={cardDescStyle}>Instanciation standard à partir d'un modèle (template) pré-configuré.</p>
                         </div>
                     </div>
 
@@ -61,8 +61,8 @@ export default function CreateVMSelectionModal({
                             <svg viewBox="0 0 24 24" width="32" height="32" stroke="#2563EB" strokeWidth="2" fill="none"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
                         </div>
                         <div style={cardContentStyle}>
-                            <h3 style={cardTitleStyle}>Directement (ISO)</h3>
-                            <p style={cardDescStyle}>Méthode avancée. Crée une VM immédiatement sur Proxmox sans passer par un template.</p>
+                            <h3 style={cardTitleStyle}>Créer une VM (ISO Direct)</h3>
+                            <p style={cardDescStyle}>Création directe depuis un fichier ISO sans passer par un template (Méthode avancée).</p>
                         </div>
                     </div>
                 </div>

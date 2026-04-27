@@ -68,7 +68,15 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const [isDirectModalOpen, setIsDirectModalOpen] = useState(false);
 
   const { user, logout } = useAuth();
-  const { vms, refreshVMs } = useVMs();
+  const { vms, refreshVMs, clusterStatus, refreshClusterStatus } = useVMs();
+
+  useEffect(() => {
+    if (refreshClusterStatus) {
+      refreshClusterStatus();
+      const timer = setInterval(refreshClusterStatus, 30000);
+      return () => clearInterval(timer);
+    }
+  }, [refreshClusterStatus]);
 
   useEffect(() => {
     const handleOpen = () => setIsSelectionModalOpen(true);
@@ -146,7 +154,10 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
             <SearchComponent vms={vms} router={router} />
             <div className="topbar-right">
-              <div className="status-pill"><div className="status-dot"></div>Cluster en ligne</div>
+              <div className={`status-pill ${clusterStatus?.online === false ? 'offline' : ''}`}>
+                <div className={`status-dot ${clusterStatus?.online === false ? 'offline' : ''}`}></div>
+                {clusterStatus === null ? 'Vérification...' : clusterStatus?.online ? 'Cluster en ligne' : 'Cluster hors ligne'}
+              </div>
               <button className="btn-ghost" onClick={() => (window as any).open('https://horizon.enspy.cm/help')}>Aide</button>
             </div>
 

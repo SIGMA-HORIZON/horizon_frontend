@@ -12,14 +12,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const { logout } = useAuth();
   const [clusterOnline, setClusterOnline] = React.useState<boolean | null>(null);
+  const [clusterStats, setClusterStats] = React.useState<{ up: number, total: number } | null>(null);
 
   React.useEffect(() => {
     const checkHealth = async () => {
       try {
         const data = await adminService.proxmoxGetHealth();
         setClusterOnline(data.online);
+        setClusterStats({ up: data.nodes_up, total: data.nodes_total });
       } catch (err) {
         setClusterOnline(false);
+        setClusterStats(null);
       }
     };
     checkHealth();
@@ -98,9 +101,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               Rechercher (Utilisateur, IP, VM)...
             </div>
             <div className="topbar-right">
-              <div className={`status-pill ${clusterOnline === false ? 'offline' : ''}`}>
+              <div className={`status-pill ${clusterOnline === false ? 'offline' : ''}`} title={clusterStats ? `${clusterStats.up}/${clusterStats.total} nœuds en ligne` : ''}>
                 <div className={`status-dot ${clusterOnline === false ? 'offline' : ''}`}></div>
-                {clusterOnline === null ? 'Vérification...' : clusterOnline ? 'Cluster en ligne' : 'Cluster hors ligne'}
+                {clusterOnline === null ? 'Vérification...' : 
+                 clusterOnline ? `Cluster en ligne ${clusterStats ? `(${clusterStats.up}/${clusterStats.total})` : ''}` : 
+                 'Cluster hors ligne'}
               </div>
               <button className="btn-ghost">Aide</button>
             </div>

@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { adminService } from '../../services/admin';
 
 export default function DashboardHome() {
-  const { vms, quota, clusterStatus } = useVMs();
+  const { vms, quota, clusterStatus, refreshClusterStatus } = useVMs();
   const { user } = useAuth();
   const router = useRouter();
 
@@ -20,21 +20,11 @@ export default function DashboardHome() {
 
   const formattedDate = today.charAt(0).toUpperCase() + today.slice(1);
 
-  const [clusterOnline, setClusterOnline] = React.useState<boolean | null>(null);
-
+  // Update cluster status periodically via context (handled by VMContext)
   React.useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const data = await adminService.getClusterStatus();
-        setClusterOnline(data.online);
-      } catch (err) {
-        setClusterOnline(false);
-      }
-    };
-    fetchStatus();
-    const timer = setInterval(fetchStatus, 30000);
+    const timer = setInterval(refreshClusterStatus, 30000);
     return () => clearInterval(timer);
-  }, []);
+  }, [refreshClusterStatus]);
 
   // Compute stats
   const totalVMs = vms.length;
@@ -55,7 +45,7 @@ export default function DashboardHome() {
         <div className="welcome-left">
           <h2>Bonjour, {user?.first_name || 'Utilisateur'}</h2>
           <p>
-            {formattedDate} · {clusterStatus ? 'Cluster Horizon Connecté' : (clusterOnline === null ? 'Vérification...' : clusterOnline ? 'Cluster en ligne' : 'Cluster hors ligne')}
+            {formattedDate} · {clusterStatus?.online ? 'Cluster Horizon Connecté' : (clusterStatus === null ? 'Vérification...' : 'Cluster hors ligne')}
           </p>
         </div>
         <div className="welcome-right">
@@ -83,7 +73,12 @@ export default function DashboardHome() {
             <div style={{ padding: '8px', background: 'rgba(16,185,129,0.1)', color: 'var(--g1-on)', borderRadius: '8px' }}>
               <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
             </div>
-            <span className="badge badge-on">Online</span>
+            <span className={`badge ${clusterStatus?.online ? 'badge-on' : 'badge-off'}`} style={{ 
+              background: clusterStatus?.online ? 'rgba(16,185,129,0.1)' : 'rgba(239, 68, 68, 0.1)',
+              color: clusterStatus?.online ? 'var(--g1-on)' : '#EF4444'
+            }}>
+              {clusterStatus?.online ? 'En ligne' : 'Hors ligne'}
+            </span>
           </div>
           <div className="vsc-id" style={{ textTransform: 'uppercase', letterSpacing: '1px', fontSize: '10px' }}>En Fonctionnement</div>
           <div className="vsc-name" style={{ fontSize: '32px', marginTop: '4px' }}>{clusterActiveVMs}</div>

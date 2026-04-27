@@ -64,5 +64,10 @@ export const vmService = {
     async listIsos() {
         const response = await api.get('/vms/available-isos');
         return response.data;
+    },
+
+    async proxmoxCreateVm(data) {
+        const response = await api.post('/vms/proxmox/create-vm', data);
+        return response.data;
     }
 };

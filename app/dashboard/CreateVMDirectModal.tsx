@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/admin';
+import { vmService } from '../../services/vms';
 
 interface CreateVMDirectModalProps {
     isOpen: boolean;
@@ -10,15 +11,13 @@ interface CreateVMDirectModalProps {
 
 export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: CreateVMDirectModalProps) {
     const [vmid, setVmid] = useState<number>(100);
-    const [node, setNode] = useState('');
-    const [nodes, setNodes] = useState<any[]>([]);
-    const [storage, setStorage] = useState('local');
     const [isoFilename, setIsoFilename] = useState('');
     const [availableIsos, setAvailableIsos] = useState<any[]>([]);
     const [name, setName] = useState('');
-    const [vcpu, setVcpu] = useState(2);
-    const [ramMb, setRamMb] = useState(2048);
+    const [vcpu, setVcpu] = useState(1);
+    const [ramMb, setRamMb] = useState(1024);
     const [storageGb, setStorageGb] = useState(20);
+    const [sessionHours, setSessionHours] = useState(24);
     const [isLoading, setIsLoading] = useState(false);
     const [sshPublicKey, setSshPublicKey] = useState('');
     const [error, setError] = useState('');
@@ -27,23 +26,14 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
         if (isOpen) {
             const fetchData = async () => {
                 try {
-                    const [nodesData, isosData] = await Promise.all([
-                        adminService.listNodeMappings(),
-                        adminService.listIsos()
-                    ]);
-
-                    setNodes(nodesData.items || []);
-                    if (nodesData.items?.length > 0) {
-                        setNode(nodesData.items[0].proxmox_node_name);
-                    }
-
+                    const isosData = await vmService.listIsos();
                     setAvailableIsos(isosData.items || []);
                     if (isosData.items?.length > 0) {
                         setIsoFilename(isosData.items[0].filename);
                     }
                 } catch (err) {
                     console.error("Failed to fetch direct creation data:", err);
-                    setError("Impossible de charger les données nécessaires (ISO/Nœuds).");
+                    setError("Impossible de charger les données nécessaires (ISO).");
                 }
             };
             fetchData();
@@ -58,17 +48,16 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
         setError('');
 
         try {
-            await adminService.proxmoxCreateVm({
-                vmid,
-                node,
-                storage,
+            await vmService.proxmoxCreateVm({
+                vmid: Number(vmid),
                 iso_filename: isoFilename,
                 name,
-                vcpu,
-                ram_mb: ramMb,
-                storage_gb: storageGb,
+                vcpu: Number(vcpu),
+                ram_mb: Number(ramMb),
+                storage_gb: Number(storageGb),
                 net0: "virtio,bridge=vmbr0",
-                ssh_public_key: sshPublicKey || null
+                ssh_public_key: sshPublicKey || null,
+                session_hours: Number(sessionHours)
             });
 
             onClose();
@@ -86,7 +75,7 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
             <div className="modal-content" style={contentStyle}>
                 <div style={headerStyle}>
                     <div>
-                        <h2 style={titleStyle}>Création Directe (Admin)</h2>
+                        <h2 style={titleStyle}>Création Directe de VM</h2>
                         <p style={subtitleStyle}>La VM sera créée immédiatement sur le cluster Proxmox.</p>
                     </div>
                     <button onClick={onClose} style={closeBtnStyle}>
@@ -114,16 +103,12 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
 
                     <div style={rowStyle}>
                         <div className="form-group" style={{ ...formGroupStyle, flex: 1 }}>
-                            <label style={labelStyle}>Nœud Proxmox</label>
-                            <select style={inputStyle} value={node} onChange={e => setNode(e.target.value)} required disabled={isLoading}>
-                                {nodes.map(n => (
-                                    <option key={n.id} value={n.proxmox_node_name}>{n.proxmox_node_name} ({n.physical_node})</option>
-                                ))}
-                            </select>
+                            <label style={labelStyle}>Placement</label>
+                            <div style={{ ...inputStyle, background: '#F8FAFC', color: '#64748B' }}>Optimisé (Sélecteur automatique)</div>
                         </div>
                         <div className="form-group" style={{ ...formGroupStyle, flex: 1 }}>
                             <label style={labelStyle}>Stockage Cible</label>
-                            <input type="text" style={inputStyle} value={storage} onChange={e => setStorage(e.target.value)} required disabled={isLoading} />
+                            <div style={{ ...inputStyle, background: '#F8FAFC', color: '#64748B' }}>Automatique (local-lvm)</div>
                         </div>
                     </div>
 
@@ -152,7 +137,7 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
                         </div>
                         <div className="form-group" style={{ ...formGroupStyle, flex: 1 }}>
                             <label style={labelStyle}>Disque (Go)</label>
-                            <input type="number" style={inputStyle} value={storageGb} onChange={e => setStorageGb(Number(e.target.value))} required min="5" disabled={isLoading} />
+                            <input type="number" style={inputStyle} value={storageGb} onChange={e => setStorageGb(Number(e.target.value))} required min="2" disabled={isLoading} />
                         </div>
                     </div>
 
@@ -166,6 +151,24 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
                             disabled={isLoading}
                         />
                         <p style={{ fontSize: '11px', color: '#64748B', marginTop: '4px' }}>Nécessite le support Cloud-Init dans l'ISO.</p>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px', marginBottom: '16px' }}>
+                        <span style={sectionTitleStyle}>Bail & Durée</span>
+                        <div style={sectionDividerStyle}></div>
+                    </div>
+
+                    <div className="form-group" style={formGroupStyle}>
+                        <label style={labelStyle}>Durée de la réservation (heures)</label>
+                        <input 
+                            type="number" 
+                            style={inputStyle} 
+                            value={sessionHours} 
+                            onChange={e => setSessionHours(Number(e.target.value))} 
+                            required 
+                            min="1" 
+                            disabled={isLoading} 
+                        />
                     </div>
 
                     <div style={footerStyle}>

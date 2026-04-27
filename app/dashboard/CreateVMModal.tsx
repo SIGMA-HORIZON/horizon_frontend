@@ -21,6 +21,7 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
   const [storage, setStorage] = useState(100);
   const [sessionHours, setSessionHours] = useState(48);
   const [sshKey, setSshKey] = useState('');
+  const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -56,7 +57,8 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
         ram: ram,
         storage: storage,
         session_hours: sessionHours,
-        ssh_public_key: sshKey
+        ssh_public_key: sshKey,
+        description: description
       });
 
       // Reset form
@@ -67,6 +69,7 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
       setStorage(100);
       setSessionHours(48);
       setSshKey('');
+      setDescription('');
       onClose();
 
       router.push('/dashboard/mes-vms');
@@ -176,7 +179,13 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
 
           <div className="form-group" style={formGroupStyle}>
             <label style={labelStyle}>Justification / Projet</label>
-            <textarea style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }} placeholder="Ex. : Entraînement modèle NLP pour le projet X..." disabled={isLoading}></textarea>
+            <textarea
+              style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
+              placeholder="Ex. : Entraînement modèle NLP pour le projet X..."
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              disabled={isLoading}
+            ></textarea>
           </div>
 
           <div style={footerStyle}>

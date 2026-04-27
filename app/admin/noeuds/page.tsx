@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../../services/admin';
+import { Modal } from '@/components/Modal';
 
 export default function Noeuds() {
   const [nodes, setNodes] = useState<any[]>([]);
@@ -9,6 +10,19 @@ export default function Noeuds() {
   const [newName, setNewName] = useState('');
   const [newIp, setNewIp] = useState('');
   const [newRam, setNewRam] = useState('128 Go');
+
+  // Dynamic Modal for alerts/info
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: 'info' | 'danger' | 'success';
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info'
+  });
 
   useEffect(() => {
     async function fetchNodes() {
@@ -27,7 +41,12 @@ export default function Noeuds() {
   const handleAddNode = (e: React.FormEvent) => {
     e.preventDefault();
     // Logique de création de mapping (simulation pour l'instant)
-    alert("L'enregistrement d'un nouveau nœud nécessite une configuration physique de l'hyperviseur.");
+    setModalConfig({
+      isOpen: true,
+      title: "Configuration requise",
+      message: "L'enregistrement d'un nouveau nœud nécessite une configuration physique de l'hyperviseur ainsi qu'une intervention technique sur le cluster Proxmox.",
+      type: 'info'
+    });
     setIsModalOpen(false);
   };
 
@@ -121,28 +140,29 @@ export default function Noeuds() {
         </div>
       </div>
 
-      {isModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.65)', backdropFilter: 'blur(4px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
-          <div style={{ background: '#0F1623', borderRadius: '16px', width: '100%', maxWidth: '450px', border: '1px solid var(--g1-border)', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)' }}>
-            <div style={{ padding: '24px 32px 16px', borderBottom: '1px solid var(--g1-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#F8FAFC', margin: 0 }}>Enregistrer un nœud</h2>
-              <button onClick={() => setIsModalOpen(false)} style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px' }}>
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-              </button>
-            </div>
-            <form onSubmit={handleAddNode} style={{ padding: '24px 32px' }}>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#F8FAFC', marginBottom: '8px' }}>Nom d'hôte Proxmox</label>
-                <input required type="text" placeholder="Ex: pve" value={newName} onChange={e => setNewName(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--g1-border)', borderRadius: '8px', color: '#F8FAFC', fontSize: '14px', outline: 'none' }} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                <button type="button" onClick={() => setIsModalOpen(false)} style={{ padding: '10px 18px', background: 'transparent', border: '1px solid var(--g1-border)', color: '#F8FAFC', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Annuler</button>
-                <button type="submit" style={{ padding: '10px 18px', background: '#2563EB', border: 'none', color: '#fff', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>Connecter</button>
-              </div>
-            </form>
-          </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Enregistrer un nœud"
+        type="info"
+        confirmLabel="Connecter"
+        onConfirm={() => handleAddNode({ preventDefault: () => {} } as any)}
+      >
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#F8FAFC', marginBottom: '8px' }}>Nom d'hôte Proxmox</label>
+          <input required type="text" placeholder="Ex: pve" value={newName} onChange={e => setNewName(e.target.value)} style={{ width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--g1-border)', borderRadius: '8px', color: '#F8FAFC', fontSize: '14px', outline: 'none' }} />
         </div>
-      )}
+      </Modal>
+
+      <Modal
+        isOpen={modalConfig.isOpen}
+        onClose={() => setModalConfig({ ...modalConfig, isOpen: false })}
+        title={modalConfig.title}
+        type={modalConfig.type}
+        showConfirm={false}
+      >
+        {modalConfig.message}
+      </Modal>
     </div>
   )
 }
