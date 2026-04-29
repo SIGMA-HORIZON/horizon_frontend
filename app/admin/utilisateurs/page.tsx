@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { accountService } from '@/services/accounts';
+import { useNotification } from '@/context/NotificationContext';
 
 interface User {
   id: string;
@@ -14,6 +15,7 @@ interface User {
 }
 
 export default function Utilisateurs() {
+  const { showNotification } = useNotification();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,7 +40,7 @@ export default function Utilisateurs() {
       setUsers(data.items || []);
     } catch (error) {
       console.error('Error fetching users:', error);
-      alert('Erreur lors du chargement des utilisateurs');
+      showNotification('Erreur lors du chargement des utilisateurs', 'error');
     } finally {
       setLoading(false);
     }
@@ -49,7 +51,7 @@ export default function Utilisateurs() {
     // Implementation for direct user creation via API if needed
     // For now we just close the modal as the user requested "validation of requests"
     setIsModalOpen(false);
-    alert('Fonctionnalité de création directe en cours de développement. Utilisez les demandes de compte.');
+    showNotification('Fonctionnalité de création directe en cours de développement. Utilisez les demandes de compte.', 'info');
   };
 
   const getInitials = (fn: string, ln: string) => {

@@ -1,8 +1,10 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../../services/admin';
+import { useNotification } from '@/context/NotificationContext';
 
 export default function Noeuds() {
+  const { showNotification } = useNotification();
   const [nodes, setNodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,7 +29,7 @@ export default function Noeuds() {
   const handleAddNode = (e: React.FormEvent) => {
     e.preventDefault();
     // Logique de création de mapping (simulation pour l'instant)
-    alert("L'enregistrement d'un nouveau nœud nécessite une configuration physique de l'hyperviseur.");
+    showNotification("L'enregistrement d'un nouveau nœud nécessite une configuration physique de l'hyperviseur.", 'info');
     setIsModalOpen(false);
   };
 

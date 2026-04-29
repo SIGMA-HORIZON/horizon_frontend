@@ -8,6 +8,7 @@ import './dashboard.css';
 import '../home.css';
 import CreateVMModal from './CreateVMModal';
 import { Icon } from '@/components/Icon';
+import { useTheme } from '../../context/ThemeContext';
 
 function SearchComponent({ vms, router }: { vms: any[], router: any }) {
   const [query, setQuery] = useState('');
@@ -63,7 +64,10 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { user, logout } = useAuth();
-  const { vms } = useVMs();
+  const { vms, clusterStatus } = useVMs();
+  const { theme, toggleTheme } = useTheme();
+
+  const isOnline = clusterStatus?.nodes?.some((n: any) => n.status === 'online') || false;
 
   useEffect(() => {
     const handleOpen = () => setIsModalOpen(true);
@@ -141,7 +145,19 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
             <SearchComponent vms={vms} router={router} />
             <div className="topbar-right">
-              <div className="status-pill"><div className="status-dot"></div>Cluster en ligne</div>
+              <button
+                className="btn-ghost"
+                onClick={toggleTheme}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 12px' }}
+                title="Changer de thème"
+              >
+                <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
+                {theme === 'dark' ? 'Mode Clair' : 'Mode Sombre'}
+              </button>
+              <div className={`status-pill ${!isOnline ? 'offline' : ''}`}>
+                <div className={`status-dot ${!isOnline ? 'offline' : ''}`}></div>
+                {isOnline ? 'Cluster en ligne' : 'Cluster hors ligne'}
+              </div>
               <button className="btn-ghost" onClick={() => (window as any).open('https://horizon.enspy.cm/help')}>Aide</button>
             </div>
 

@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { accountService } from '@/services/accounts';
+import { useNotification } from '@/context/NotificationContext';
 
 interface AccountRequest {
     id: string;
@@ -14,6 +15,7 @@ interface AccountRequest {
 }
 
 export default function DemandesComptes() {
+    const { showNotification } = useNotification();
     const [requests, setRequests] = useState<AccountRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedRequest, setSelectedRequest] = useState<AccountRequest | null>(null);
@@ -32,7 +34,7 @@ export default function DemandesComptes() {
             setRequests(data.items || []);
         } catch (error) {
             console.error('Error fetching requests:', error);
-            alert('Erreur lors du chargement des demandes');
+            showNotification('Erreur lors du chargement des demandes', 'error');
         } finally {
             setLoading(false);
         }
@@ -42,13 +44,13 @@ export default function DemandesComptes() {
         if (!selectedRequest) return;
         try {
             await accountService.approveRequest(selectedRequest.id);
-            alert(`Le compte de ${selectedRequest.first_name} a été approuvé`);
+            showNotification(`Le compte de ${selectedRequest.first_name} a été approuvé`, 'success');
             setIsApproveModalOpen(false);
             setSelectedRequest(null);
             fetchRequests();
         } catch (error) {
             console.error('Error approving request:', error);
-            alert('Erreur lors de l\'approbation');
+            showNotification('Erreur lors de l\'approbation', 'error');
         }
     };
 
@@ -56,14 +58,14 @@ export default function DemandesComptes() {
         if (!selectedRequest || !rejectReason) return;
         try {
             await accountService.rejectRequest(selectedRequest.id, rejectReason);
-            alert(`La demande de ${selectedRequest.first_name} a été rejetée`);
+            showNotification(`La demande de ${selectedRequest.first_name} a été rejetée`, 'success');
             setIsRejectModalOpen(false);
             setSelectedRequest(null);
             setRejectReason('');
             fetchRequests();
         } catch (error) {
             console.error('Error rejecting request:', error);
-            alert('Erreur lors du rejet');
+            showNotification('Erreur lors du rejet', 'error');
         }
     };
 

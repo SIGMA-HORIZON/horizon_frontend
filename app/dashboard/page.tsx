@@ -22,21 +22,23 @@ export default function DashboardHome() {
   const totalVMs = vms.length;
   // Les statuts valides pour une VM "active" sont ACTIVE et WARNING
   const activeVMs = vms.filter(v => ['ACTIVE', 'WARNING', 'running', 'on'].includes(v.status)).length;
-  
+
   // Cluster wide stats from Proxmox if available, otherwise fallback to local DB stats
   const clusterActiveVMs = clusterStatus?.active_vms ?? activeVMs;
   const clusterTotalVMs = clusterStatus?.total_vms ?? totalVMs;
-  
+
   // CPU / RAM usage if clusterStatus is available
   const totalCpu = clusterStatus?.total_cpus ?? vms.reduce((acc, v) => acc + (v.vcpu || 0), 0);
-  const totalRam = clusterStatus ? Math.round(clusterStatus.total_memory / (1024*1024*1024)) : vms.reduce((acc, v) => acc + (v.ram_gb || 0), 0);
+  const totalRam = clusterStatus ? Math.round(clusterStatus.total_memory / (1024 * 1024 * 1024)) : vms.reduce((acc, v) => acc + (v.ram_gb || 0), 0);
+
+  const isOnline = clusterStatus?.nodes?.some((n: any) => n.status === 'online') || false;
 
   return (
     <div className="page active" id="pg-dashboard">
       <div className="welcome">
         <div className="welcome-left">
           <h2>Bonjour, {user?.first_name || 'Utilisateur'}</h2>
-          <p>{formattedDate} · Cluster Horizon {clusterStatus ? 'Connecté' : 'en ligne'}</p>
+          <p>{formattedDate} · Cluster Horizon {isOnline ? 'Connecté' : 'Hors ligne'}</p>
         </div>
         <div className="welcome-right">
           <button className="btn-ghost" onClick={() => router.push('/dashboard/mes-vms')}>Voir mes VMs</button>

@@ -16,8 +16,33 @@
   backdrop-filter: blur(10px);
   border-radius: 12px;
   padding: 48px;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
   animation: fadeUp 0.6s ease both;
+}
+
+.light-mode .request-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .request-title {
+  color: #0F172A;
+}
+
+.light-mode .input-wrapper {
+  background: #FFFFFF;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .form-input,
+.light-mode .form-select,
+.light-mode .form-textarea {
+  color: #1E293B;
+}
+
+.light-mode .divider::after {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .badge-request {
@@ -133,7 +158,9 @@
   color: #64748B;
 }
 
-.form-input, .form-select, .form-textarea {
+.form-input,
+.form-select,
+.form-textarea {
   width: 100%;
   background: transparent;
   border: none;

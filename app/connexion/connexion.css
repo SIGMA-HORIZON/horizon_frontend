@@ -21,17 +21,29 @@
   animation: fadeUp 0.6s ease both;
 }
 
+.light-mode .login-card {
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .badge-secure {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(0,180,216,.08);
-  border: 1px solid rgba(0,180,216,.25);
+  background: rgba(0, 180, 216, .08);
+  border: 1px solid rgba(0, 180, 216, .25);
   color: var(--cyan);
   font-size: 11px;
   font-weight: 600;
@@ -60,7 +72,7 @@
 .login-alert {
   display: flex;
   gap: 12px;
-  background: rgba(30,136,229,.08);
+  background: rgba(30, 136, 229, .08);
   border: 1px solid var(--border);
   border-left: 3px solid var(--cyan);
   padding: 16px;
@@ -132,7 +144,7 @@
 
 .form-input:focus {
   border-color: var(--cyan);
-  box-shadow: 0 0 0 2px rgba(0,180,216,.15);
+  box-shadow: 0 0 0 2px rgba(0, 180, 216, .15);
 }
 
 .form-row {
@@ -233,7 +245,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  box-shadow: 0 4px 16px rgba(21,101,192,.4), 0 0 0 1px rgba(0,180,216,.2);
+  box-shadow: 0 4px 16px rgba(21, 101, 192, .4), 0 0 0 1px rgba(0, 180, 216, .2);
   transition: transform 0.15s, box-shadow 0.2s;
   position: relative;
   overflow: hidden;
@@ -243,14 +255,14 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(0,180,216,.3), transparent);
+  background: linear-gradient(135deg, rgba(0, 180, 216, .3), transparent);
   opacity: 0;
   transition: opacity 0.2s;
 }
 
 .login-btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(21,101,192,.5);
+  box-shadow: 0 8px 24px rgba(21, 101, 192, .5);
 }
 
 .login-btn-primary:hover::before {

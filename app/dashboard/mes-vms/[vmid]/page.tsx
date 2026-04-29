@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { useVMs } from '../../VMContext';
 import { vmService } from '@/services/vms';
 import { Icon } from '@/components/Icon';
+import { useNotification } from '@/context/NotificationContext';
 
 export default function VMDetails() {
   const params = useParams();
   const router = useRouter();
   const vmid = params.vmid as string;
   const { vms, deleteVM, updateVM, startVM, stopVM, rebootVM, refreshVMs } = useVMs();
+  const { showNotification } = useNotification();
 
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>('');
@@ -44,10 +46,10 @@ export default function VMDetails() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      alert("Clé SSH téléchargée avec succès. Elle a été supprimée du serveur.");
+      showNotification("Clé SSH téléchargée avec succès. Elle a été supprimée du serveur.", "success");
       refreshVMs();
     } catch (error: any) {
-      alert(error.response?.data?.detail || "Erreur lors du téléchargement.");
+      showNotification(error.response?.data?.detail || "Erreur lors du téléchargement.", "error");
     }
   };
 
@@ -75,12 +77,12 @@ export default function VMDetails() {
             <Icon name="console" strokeWidth={2.5} />
             Console VNC
           </button>
-          
-          <ActionButtons 
-            isRunning={isRunning} 
-            onStart={() => startVM(vm.id)} 
-            onStop={() => stopVM(vm.id)} 
-            onReboot={() => rebootVM(vm.id)} 
+
+          <ActionButtons
+            isRunning={isRunning}
+            onStart={() => startVM(vm.id)}
+            onStop={() => stopVM(vm.id)}
+            onReboot={() => rebootVM(vm.id)}
             onDelete={() => {
               if (confirm("Supprimer cette VM ?")) {
                 deleteVM(vm.id);
@@ -158,14 +160,14 @@ function EditableRow({ label, value, field, editingField, editValue, onEdit, onS
       <div className="detail-label">{label}</div>
       <div className="detail-value">
         {isEditing ? (
-          <input 
-            className="pm-input" 
-            type={type} 
-            style={{ padding: '4px 8px', width: '120px', height: '28px' }} 
-            value={editValue} 
-            onChange={e => onChange(e.target.value)} 
-            onBlur={onSave} 
-            autoFocus 
+          <input
+            className="pm-input"
+            type={type}
+            style={{ padding: '4px 8px', width: '120px', height: '28px' }}
+            value={editValue}
+            onChange={e => onChange(e.target.value)}
+            onBlur={onSave}
+            autoFocus
           />
         ) : (
           <span onClick={() => onEdit(field, value)} style={{ cursor: 'pointer', borderBottom: '1px dashed rgba(255,255,255,0.2)' }}>{value}</span>

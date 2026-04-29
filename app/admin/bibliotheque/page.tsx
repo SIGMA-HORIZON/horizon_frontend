@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../../services/admin';
 import IsoUploadModal from './IsoUploadModal';
+import { useNotification } from '@/context/NotificationContext';
 
 export default function OSBibliotheque() {
+  const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = useState('templates'); // 'templates' | 'isos'
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState<any[]>([]);
@@ -48,9 +50,9 @@ export default function OSBibliotheque() {
       });
       setIsIsoModalOpen(false);
       fetchData();
-      setNewName(''); setNewFilename(''); setOsVersion(''); setNewDesc('');
+      showNotification('Image ISO référencée avec succès', 'success');
     } catch (err) {
-      alert("Erreur lors de l'ajout de l'ISO");
+      showNotification("Erreur lors de l'ajout de l'ISO", 'error');
     }
   };
 
