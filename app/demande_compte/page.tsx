@@ -105,8 +105,8 @@ export default function DemandeCompte() {
             Veuillez remplir ce formulaire avec précision pour obtenir vos accès aux ressources de calcul.
           </p>
 
-          <div className="request-alert" style={{ background: 'rgba(59, 130, 246, 0.05)', borderColor: 'rgba(59, 130, 246, 0.1)', color: '#93C5FD', marginBottom: '32px' }}>
-            <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '8px', color: '#60A5FA', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="request-alert" style={{ background: 'var(--blue-glow)', borderColor: 'var(--border)', color: 'var(--text-muted)', marginBottom: '32px' }}>
+            <div style={{ fontWeight: 600, fontSize: '15px', marginBottom: '8px', color: 'var(--cyan)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
               À propos du Projet SIGMA Horizon
             </div>
@@ -153,7 +153,7 @@ export default function DemandeCompte() {
                   <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
                   <input type="email" className="form-input" name="email" value={formData.email} onChange={handleChange} placeholder="prenom.nom@institution.cm" required disabled={isLoading} />
                 </div>
-                <div style={{ fontSize: '12px', color: '#64748B', marginTop: '12px', lineHeight: '1.4' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-dim)', marginTop: '12px', lineHeight: '1.4' }}>
                   Veuillez fournir une adresse e-mail institutionnelle ou professionnelle.
                 </div>
               </div>
@@ -218,8 +218,8 @@ export default function DemandeCompte() {
 
             <div className="form-group" style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginTop: '32px' }}>
               <input type="checkbox" id="rules" style={{ marginTop: '4px', width: '20px', height: '20px', cursor: 'pointer' }} required disabled={isLoading} />
-              <label htmlFor="rules" style={{ fontSize: '14px', color: '#94A3B8', lineHeight: '1.6' }}>
-                J'ai lu et j'accepte les <a href="cgu" style={{ color: '#00B4D8', textDecoration: 'underline' }}>Conditions d'utilisation</a> de la plateforme Horizon.
+              <label htmlFor="rules" style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '1.6' }}>
+                J'ai lu et j'accepte les <a href="cgu" style={{ color: 'var(--cyan)', textDecoration: 'underline' }}>Conditions d'utilisation</a> de la plateforme Horizon.
               </label>
             </div>
 
@@ -237,7 +237,7 @@ export default function DemandeCompte() {
             </div>
 
             <div style={{ textAlign: 'center', marginTop: '32px', fontSize: '14px', color: '#94A3B8' }}>
-              Vous avez déjà un compte ? <Link href="/connexion" style={{ color: '#3B82F6', fontWeight: 600, textDecoration: 'none' }}>Se connecter</Link>
+              Vous avez déjà un compte ? <Link href="/connexion" style={{ color: 'var(--cyan)', fontWeight: 600, textDecoration: 'none' }}>Se connecter</Link>
             </div>
 
           </form>

@@ -14,7 +14,7 @@ export default function Home() {
       <Header />
 
       <section className="hero" style={{ 
-        backgroundImage: 'linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url("/hero-bg.jpg")',
+        backgroundImage: 'linear-gradient(var(--hero-overlay), var(--hero-overlay)), url("/hero-bg.jpg")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         padding: '160px 20px 120px'
@@ -101,7 +101,7 @@ export default function Home() {
         {/* Feature 1: Cloud & VMs */}
         <div className="feature-showcase" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', background: 'rgba(255,255,255,0.02)', padding: '40px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
           <div className="feature-text" style={{ flex: 1, minWidth: '300px' }}>
-            <h3 style={{ fontSize: '28px', color: 'white', marginBottom: '16px' }}>Virtualisation instantanée</h3>
+            <h3 style={{ fontSize: '28px', color: 'var(--text-white)', marginBottom: '16px' }}>Virtualisation instantanée</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '16px', lineHeight: '1.6', marginBottom: '24px' }}>
               Déployez des serveurs virtuels (Ubuntu, Debian, Fedora, CentOS) en quelques minutes. Accédez nativement via une console web intégrée ou par votre terminal via SSH. Idéal pour vos environnements de développement.
             </p>
@@ -119,10 +119,10 @@ export default function Home() {
         {/* Feature 2: High Availability and Distribution */}
         <div className="feature-showcase" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap-reverse', background: 'rgba(255,255,255,0.02)', padding: '40px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
           <div className="feature-image" style={{ flex: 1, minWidth: '300px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)' }}>
-            <img src="https://images.unsplash.com/photo-1558483301-381676672320?auto=format&fit=crop&w=800&q=80" alt="Server Rack" style={{ width: '100%', height: '400px', display: 'block', objectFit: 'cover' }} />
+            <img src="/server-rack-horizon.png" alt="Server Rack" style={{ width: '100%', height: '400px', display: 'block', objectFit: 'cover' }} />
           </div>
           <div className="feature-text" style={{ flex: 1, minWidth: '300px' }}>
-            <h3 style={{ fontSize: '28px', color: 'white', marginBottom: '16px' }}>Évolutivité & Stockage</h3>
+            <h3 style={{ fontSize: '28px', color: 'var(--text-white)', marginBottom: '16px' }}>Évolutivité & Stockage</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '16px', lineHeight: '1.6', marginBottom: '24px' }}>
               Gérez vos ressources avec une flexibilité totale. Augmentez la capacité de vos serveurs (CPU/RAM) selon vos besoins et profitez d'un stockage distribué (Ceph) garantissant la persistance et la sécurité de vos données critiques.
             </p>
@@ -137,7 +137,7 @@ export default function Home() {
         {/* Feature 3: Security & Management */}
         <div className="feature-showcase" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', background: 'rgba(255,255,255,0.02)', padding: '40px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
           <div className="feature-text" style={{ flex: 1, minWidth: '300px' }}>
-            <h3 style={{ fontSize: '28px', color: 'white', marginBottom: '16px' }}>Sécurité & Pilotage</h3>
+            <h3 style={{ fontSize: '28px', color: 'var(--text-white)', marginBottom: '16px' }}>Sécurité & Pilotage</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '16px', lineHeight: '1.6', marginBottom: '24px' }}>
               Pilotez vous-même le cycle de vie de vos serveurs (démarrage, arrêt, snapshots) depuis une interface intuitive. Votre accès SSH est sécurisé en toute transparence par l'injection de votre clé au lancement via Cloud-init.
             </p>

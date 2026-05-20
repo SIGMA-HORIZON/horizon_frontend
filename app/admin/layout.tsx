@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
+import { ThemeToggle } from '../../components/ThemeToggle';
 import '../dashboard/dashboard.css';
 import '../home.css';
 import { adminService } from '../../services/admin';
@@ -107,6 +108,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                  clusterOnline ? `Cluster en ligne ${clusterStats ? `(${clusterStats.up}/${clusterStats.total})` : ''}` : 
                  'Cluster hors ligne'}
               </div>
+              <ThemeToggle />
               <button className="btn-ghost">Aide</button>
             </div>
           </div>

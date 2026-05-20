@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ThemeToggle } from '../../components/ThemeToggle';
 
 const Header = () => {
   const pathname = usePathname();
@@ -30,7 +31,7 @@ const Header = () => {
     <nav>
       <div className="nav-brand">
         <div className="nav-logo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="3" width="8" height="8" rx="1"/>
             <rect x="14" y="3" width="8" height="8" rx="1"/>
             <rect x="2" y="13" width="8" height="8" rx="1"/>
@@ -61,7 +62,8 @@ const Header = () => {
         </li>
       </ul>
 
-      <div className="nav-cta">
+      <div className="nav-cta" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <ThemeToggle />
         <Link href="/demande_compte" className={`btn-ghost-sm ${activeTab === 'Demande d\'accès' ? 'nav-active-btn' : ''}`} onClick={() => setActiveTab('Demande d\'accès')}>Demande d'accès</Link>
         <Link href="/connexion" className={`btn-primary-sm ${activeTab === 'Connexion' ? 'nav-active-btn' : ''}`} onClick={() => setActiveTab('Connexion')}>Connexion</Link>
       </div>

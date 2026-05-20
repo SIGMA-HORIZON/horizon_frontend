@@ -47,14 +47,14 @@ export default function OSBibliotheque() {
 
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           {/* Tab switcher */}
-          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '10px' }}>
+          <div style={{ display: 'flex', background: 'var(--g1-nav)', padding: '4px', borderRadius: '10px', border: '1px solid var(--g1-border)' }}>
             <button
               onClick={() => setActiveTab('templates')}
-              style={{ padding: '8px 16px', border: 'none', background: activeTab === 'templates' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'templates' ? 'white' : 'var(--g1-muted)', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+              style={{ padding: '8px 16px', border: 'none', background: activeTab === 'templates' ? 'var(--g1-accent2)' : 'transparent', color: activeTab === 'templates' ? 'white' : 'var(--g1-muted)', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
             >Templates</button>
             <button
               onClick={() => setActiveTab('isos')}
-              style={{ padding: '8px 16px', border: 'none', background: activeTab === 'isos' ? 'rgba(255,255,255,0.1)' : 'transparent', color: activeTab === 'isos' ? 'white' : 'var(--g1-muted)', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+              style={{ padding: '8px 16px', border: 'none', background: activeTab === 'isos' ? 'var(--g1-accent2)' : 'transparent', color: activeTab === 'isos' ? 'white' : 'var(--g1-muted)', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
             >Fichiers ISO</button>
           </div>
 
@@ -136,8 +136,8 @@ export default function OSBibliotheque() {
           {templates.map(t => (
             <div key={t.id} className="pm-card" style={{ padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#60A5FA' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'var(--g1-nav)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--g1-border)' }}>
+                  <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--g1-accent)' }}>
                     <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
                     <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
                     <line x1="12" y1="22.08" x2="12" y2="12" />
@@ -229,10 +229,10 @@ export default function OSBibliotheque() {
                 <tbody>
                   {isos.map(iso => (
                     <tr key={iso.id} style={{ transition: 'background 0.15s' }}>
-                      <td style={{ padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.03)', color: 'white', fontWeight: 500 }}>{iso.name}</td>
-                      <td style={{ padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.03)', color: 'var(--g1-muted)', fontFamily: 'monospace', fontSize: '12px' }}>{iso.filename}</td>
-                      <td style={{ padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.03)', color: 'var(--g1-muted)' }}>{iso.os_family} {iso.os_version}</td>
-                      <td style={{ padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                      <td style={{ padding: '14px 20px', borderBottom: '1px solid var(--g1-border)', color: 'var(--g1-text)', fontWeight: 500 }}>{iso.name}</td>
+                      <td style={{ padding: '14px 20px', borderBottom: '1px solid var(--g1-border)', color: 'var(--g1-muted)', fontFamily: 'monospace', fontSize: '12px' }}>{iso.filename}</td>
+                      <td style={{ padding: '14px 20px', borderBottom: '1px solid var(--g1-border)', color: 'var(--g1-muted)' }}>{iso.os_family} {iso.os_version}</td>
+                      <td style={{ padding: '14px 20px', borderBottom: '1px solid var(--g1-border)' }}>
                         <span className={`badge ${iso.is_active ? 'badge-on' : 'badge-err'}`}>{iso.is_active ? 'ACTIF' : 'INACTIF'}</span>
                       </td>
                       <td style={{ padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.03)', textAlign: 'right' }}>

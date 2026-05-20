@@ -16,6 +16,17 @@
   background: var(--bg-deep);
 }
 
+.light-theme.cgu-theme, .light-theme .cgu-theme {
+  --bg-sidebar: #F1F5F9;
+  --bg-card:    #FFFFFF;
+  --bg-hover:   #F8FAFC;
+  --text:       #000000;
+  --muted:      #0f172a;
+  --dim:        #334155;
+  --border:     rgba(15, 23, 42, 0.1);
+  --border-m:   rgba(15, 23, 42, 0.2);
+}
+
 .cgu-page-wrap {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -168,9 +179,9 @@
 .badge-pulse {
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--cyan); box-shadow: 0 0 6px var(--cyan);
-  animation: pulse 2s infinite;
+  animation: cgu-pulse 2s infinite;
 }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes cgu-pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 
 .cgu-hero h1 {
   font-family: 'Rajdhani', sans-serif;
@@ -259,14 +270,14 @@
 .cgu-alert a { text-decoration: none; border-bottom: 1px solid; }
 
 .alert-info {
-  background: rgba(21,101,192,.1);
-  border: 1px solid rgba(21,101,192,.25);
+  background: var(--blue-glow);
+  border: 1px solid var(--border);
   border-left: 3px solid var(--cyan);
   border-radius: 0 8px 8px 0;
-  color: #90CAF9;
+  color: var(--muted);
 }
 .alert-info svg { color: var(--cyan); }
-.alert-info a { color: #90CAF9; border-bottom-color: rgba(144,202,249,.4); }
+.alert-info a { color: var(--cyan); border-bottom-color: rgba(0,180,216,.4); }
 
 .alert-warn {
   background: rgba(255,179,0,.07);

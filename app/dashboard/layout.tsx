@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { VMProvider, useVMs } from './VMContext';
-import { ThemeProvider, useTheme } from './ThemeContext';
-import { ThemeToggle } from './ThemeToggle';
+import { ThemeProvider, useTheme } from '../../context/ThemeContext';
+import { ThemeToggle } from '../../components/ThemeToggle';
 import './dashboard.css';
 import '../home.css';
 import CreateVMModal from './CreateVMModal';
@@ -204,10 +204,8 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider>
-      <VMProvider>
-        <DashboardLayoutInner>{children}</DashboardLayoutInner>
-      </VMProvider>
-    </ThemeProvider>
-  )
+    <VMProvider>
+      <DashboardLayoutInner>{children}</DashboardLayoutInner>
+    </VMProvider>
+  );
 }

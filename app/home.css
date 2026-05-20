@@ -18,6 +18,26 @@
   --text-muted: #7A93B8;
   --text-dim:   #3D5578;
   --shadow-lg:  0 20px 60px rgba(0,0,0,.6);
+  --nav-bg:     rgba(6,11,24,.8);
+  --footer-bg:  rgba(6,11,24,.9);
+  --hero-overlay: rgba(0,0,0,0.7);
+}
+
+.light-theme {
+  --bg-deep:    #F8FAFC;
+  --bg-card:    #FFFFFF;
+  --bg-input:   #F1F5F9;
+  --bg-hover:   #F1F5F9;
+  --text-white: #000000;
+  --text-muted: #0f172a;
+  --text-dim:   #334155;
+  --border:     rgba(15, 23, 42, 0.1);
+  --shadow-lg:  0 10px 40px rgba(15, 23, 42, 0.08);
+  --cyan-glow:  rgba(0, 180, 216, 0.08);
+  --blue-glow:  rgba(37, 99, 235, 0.08);
+  --nav-bg:     rgba(248, 250, 252, 0.8);
+  --footer-bg:  #F1F5F9;
+  --hero-overlay: rgba(248, 250, 252, 0.75);
 }
 
 html { scroll-behavior: smooth; }
@@ -57,7 +77,7 @@ nav {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 48px;
   height: 64px;
-  background: rgba(6,11,24,.8);
+  background: var(--nav-bg);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
@@ -652,7 +672,7 @@ nav {
 
 .cta-card {
   max-width: 900px; margin: 0 auto;
-  background: linear-gradient(135deg, #0D1A35 0%, #060F22 100%);
+  background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 64px 56px;
@@ -727,7 +747,7 @@ nav {
 .footer-professional {
   position: relative; z-index: 1;
   border-top: 1px solid var(--border);
-  background: rgba(6,11,24,.9);
+  background: var(--footer-bg);
   padding: 64px 48px 32px;
 }
 
