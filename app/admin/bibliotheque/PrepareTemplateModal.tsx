@@ -15,8 +15,8 @@ export default function PrepareTemplateModal({ onClose, onSuccess, availableIsos
 
     // Form fields
     const [vmid, setVmid] = useState<number>(9100);
-    const [node, setNode] = useState('pve1');
-    const [storage, setStorage] = useState('local-lvm');
+    const [node, setNode] = useState('');
+    const [storage, setStorage] = useState('');
     const [isoFilename, setIsoFilename] = useState('');
     const [isoStorage, setIsoStorage] = useState('nfs-shared-iso');
     const [name, setName] = useState('template-prepare');

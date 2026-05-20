@@ -9,6 +9,7 @@ export default function OSBibliotheque() {
   const [loading, setLoading] = useState(true);
   const [templates, setTemplates] = useState<any[]>([]);
   const [isos, setIsos] = useState<any[]>([]);
+  const [syncing, setSyncing] = useState(false);
 
   // Modals
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -81,6 +82,40 @@ export default function OSBibliotheque() {
                   <line x1="12" y1="3" x2="12" y2="15" />
                 </svg>
                 Uploader sur Proxmox
+              </button>
+
+              {/* Sync button */}
+              <button
+                onClick={async () => {
+                  setSyncing(true);
+                  try {
+                    await adminService.syncIsos();
+                    await fetchData();
+                  } catch (err) {
+                    console.error("Erreur sync:", err);
+                  } finally {
+                    setSyncing(false);
+                  }
+                }}
+                disabled={syncing}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  padding: '9px 18px',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: 'white',
+                  borderRadius: '10px', fontSize: '13px', fontWeight: 600,
+                  cursor: syncing ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s',
+                  opacity: syncing ? 0.5 : 1
+                }}
+              >
+                <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" fill="none" strokeWidth="2.5" className={syncing ? "spin" : ""}>
+                   <path d="M23 4v6h-6" />
+                   <path d="M1 20v-6h6" />
+                   <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                </svg>
+                {syncing ? 'Synchronisation...' : 'Synchroniser Proxmox'}
               </button>
 
             </>

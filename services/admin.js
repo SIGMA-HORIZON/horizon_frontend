@@ -129,12 +129,12 @@ export const adminService = {
         const response = await api.post('/admin/isos', data);
         return response.data;
     },
-    async listIsoTemplates() {
-        const response = await api.get('/admin/proxmox/iso-templates');
-        return response.data;
-    },
     async getProxmoxStorageIsos(node = 'pve', storage = 'local') {
         const response = await api.get('/admin/proxmox/storage-isos', { params: { node, storage } });
+        return response.data;
+    },
+    async syncIsos() {
+        const response = await api.post('/admin/proxmox/sync-isos');
         return response.data;
     },
     async listReservations() {
@@ -186,4 +186,3 @@ export const adminService = {
         return response.data;
     },
 };
-
