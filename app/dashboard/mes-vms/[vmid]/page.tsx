@@ -229,7 +229,7 @@ function VMNotFound({ vmid, onBack }: any) {
   return (
     <div className="page active" style={{ padding: '40px' }}>
       <div className="vm-panel" style={{ padding: '40px', textAlign: 'center' }}>
-        <h2 style={{ color: '#fff' }}>VM introuvable</h2>
+        <h2 style={{ color: 'var(--g1-text)' }}>VM introuvable</h2>
         <p style={{ color: 'var(--g1-muted)', margin: '12px 0 24px' }}>L'identifiant {vmid} est incorrect.</p>
         <button className="btn-accent" onClick={onBack}>Retour à la liste</button>
       </div>
@@ -271,7 +271,7 @@ function EditableRow({ label, value, field, editingField, editValue, onEdit, onS
             autoFocus 
           />
         ) : (
-          <span onClick={() => onEdit(field, value)} style={{ cursor: 'pointer', borderBottom: '1px dashed rgba(255,255,255,0.2)' }}>{value}</span>
+          <span onClick={() => onEdit(field, value)} style={{ cursor: 'pointer', borderBottom: '1px dashed var(--g1-border)' }}>{value}</span>
         )}
       </div>
     </div>
@@ -292,14 +292,14 @@ function SSHCard({ ip, hasKey, onDownload, osFamily, onOpenTerminal, disabled, i
               <Icon name="info" size={14} style={{ marginRight: '6px' }} />
               Installation manuelle requise
             </p>
-            <p style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.7)', marginTop: '4px' }}>
-              Cette VM a été créée depuis un ISO. L'accès SSH doit être configuré manuellement dans l'OS pour que le terminal fonctionne.
-            </p>
-          </div>
-        )}
-        
-        <p style={{ fontSize: '13px', color: 'var(--g1-muted)', marginBottom: '12px' }}>Connectez-vous via terminal :</p>
-        <code style={{ display: 'block', background: '#030610', padding: '12px', borderRadius: '8px', border: '1px solid var(--g1-border)', color: 'var(--g1-accent)', fontSize: '12px' }}>
+        <p style={{ fontSize: '11px', color: 'var(--g1-muted)', marginTop: '4px' }}>
+          Cette VM a été créée depuis un ISO. L'accès SSH doit être configuré manuellement dans l'OS pour que le terminal fonctionne.
+        </p>
+      </div>
+    )}
+    
+    <p style={{ fontSize: '13px', color: 'var(--g1-muted)', marginBottom: '12px' }}>Connectez-vous via terminal :</p>
+    <code style={{ display: 'block', background: 'var(--g1-bg)', padding: '12px', borderRadius: '8px', border: '1px solid var(--g1-border)', color: 'var(--g1-accent)', fontSize: '12px' }}>
           ssh {osFamily === 'WINDOWS' ? 'Administrator' : 'user'}@{ip || 'IP'}
         </code>
         

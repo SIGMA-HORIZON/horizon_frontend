@@ -26,18 +26,14 @@ export default function DashboardHome() {
     return () => clearInterval(timer);
   }, [refreshClusterStatus]);
 
-  // Compute stats
+  // Compute stats for current user
   const totalVMs = vms.length;
-  // Les statuts valides pour une VM "active" sont ACTIVE et WARNING
+  // Les statuts valides pour une VM "active" sont ACTIVE, WARNING, running, on
   const activeVMs = vms.filter(v => ['ACTIVE', 'WARNING', 'running', 'on'].includes(v.status)).length;
   
-  // Cluster wide stats from Proxmox if available, otherwise fallback to local DB stats
-  const clusterActiveVMs = clusterStatus?.active_vms ?? activeVMs;
-  const clusterTotalVMs = clusterStatus?.total_vms ?? totalVMs;
-  
-  // CPU / RAM usage if clusterStatus is available
-  const totalCpu = clusterStatus?.total_cpus ?? vms.reduce((acc, v) => acc + (v.vcpu || 0), 0);
-  const totalRam = clusterStatus ? Math.round(clusterStatus.total_memory / (1024*1024*1024)) : vms.reduce((acc, v) => acc + (v.ram_gb || 0), 0);
+  // User specific resource consumption
+  const userCpu = vms.reduce((acc, v) => acc + (v.vcpu || 0), 0);
+  const userRam = Math.round(vms.reduce((acc, v) => acc + (v.ram_gb || 0), 0) * 10) / 10;
 
   return (
     <div className="page active" id="pg-dashboard">
@@ -61,11 +57,11 @@ export default function DashboardHome() {
             <div style={{ padding: '8px', background: 'rgba(37,99,235,0.1)', color: 'var(--g1-accent2)', borderRadius: '8px' }}>
               <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M8 4v16M16 4v16"></path></svg>
             </div>
-            <span className="badge badge-blue">Cluster</span>
+            <span className="badge badge-blue">Mes VMs</span>
           </div>
-          <div className="vsc-id" style={{ textTransform: 'uppercase', letterSpacing: '1px', fontSize: '10px' }}>Total Cluster VMs</div>
-          <div className="vsc-name" style={{ fontSize: '32px', marginTop: '4px' }}>{clusterTotalVMs}</div>
-          <div className="vsc-meta">Instances totales sur le datacenter</div>
+          <div className="vsc-id" style={{ textTransform: 'uppercase', letterSpacing: '1px', fontSize: '10px' }}>Total Mes VMs</div>
+          <div className="vsc-name" style={{ fontSize: '32px', marginTop: '4px' }}>{totalVMs}</div>
+          <div className="vsc-meta">Vos instances réservées</div>
         </div>
 
         <div className="vm-status-card">
@@ -81,8 +77,8 @@ export default function DashboardHome() {
             </span>
           </div>
           <div className="vsc-id" style={{ textTransform: 'uppercase', letterSpacing: '1px', fontSize: '10px' }}>En Fonctionnement</div>
-          <div className="vsc-name" style={{ fontSize: '32px', marginTop: '4px' }}>{clusterActiveVMs}</div>
-          <div className="vsc-meta">VMs actives sur le cluster</div>
+          <div className="vsc-name" style={{ fontSize: '32px', marginTop: '4px' }}>{activeVMs}</div>
+          <div className="vsc-meta">Vos VMs actives en ce moment</div>
         </div>
 
         <div className="vm-status-card">
@@ -92,9 +88,9 @@ export default function DashboardHome() {
             </div>
             <span className="badge badge-blue">vCPU</span>
           </div>
-          <div className="vsc-id" style={{ textTransform: 'uppercase', letterSpacing: '1px', fontSize: '10px' }}>Ressources CPU</div>
-          <div className="vsc-name" style={{ fontSize: '32px', marginTop: '4px' }}>{totalCpu}</div>
-          <div className="vsc-meta">Cœurs virtuels alloués</div>
+          <div className="vsc-id" style={{ textTransform: 'uppercase', letterSpacing: '1px', fontSize: '10px' }}>Mes vCPUs</div>
+          <div className="vsc-name" style={{ fontSize: '32px', marginTop: '4px' }}>{userCpu}</div>
+          <div className="vsc-meta">Cœurs virtuels que vous utilisez</div>
         </div>
 
         <div className="vm-status-card">
@@ -104,9 +100,9 @@ export default function DashboardHome() {
             </div>
             <span className="badge badge-warn">RAM</span>
           </div>
-          <div className="vsc-id" style={{ textTransform: 'uppercase', letterSpacing: '1px', fontSize: '10px' }}>Mémoire Vive</div>
-          <div className="vsc-name" style={{ fontSize: '32px', marginTop: '4px' }}>{totalRam} <span style={{ fontSize: '16px', color: 'var(--g1-muted)' }}>Go</span></div>
-          <div className="vsc-meta">Mémoire totale provisionnée</div>
+          <div className="vsc-id" style={{ textTransform: 'uppercase', letterSpacing: '1px', fontSize: '10px' }}>Ma Mémoire RAM</div>
+          <div className="vsc-name" style={{ fontSize: '32px', marginTop: '4px' }}>{userRam} <span style={{ fontSize: '16px', color: 'var(--g1-muted)' }}>Go</span></div>
+          <div className="vsc-meta">Mémoire totale de vos instances</div>
         </div>
 
       </div>

@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { VMProvider, useVMs } from './VMContext';
+import { ThemeProvider, useTheme } from './ThemeContext';
+import { ThemeToggle } from './ThemeToggle';
 import './dashboard.css';
 import '../home.css';
 import CreateVMModal from './CreateVMModal';
@@ -34,7 +36,7 @@ function SearchComponent({ vms, router }: { vms: any[], router: any }) {
         style={{ background: 'transparent', border: 'none', outline: 'none', color: 'inherit', fontSize: 'inherit', flex: 1 }}
       />
       {isFocused && query.length > 0 && (
-        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#0F1623', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', zIndex: 100, marginTop: '8px', overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
+        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--g1-card)', border: '1px solid var(--g1-border)', borderRadius: '8px', zIndex: 100, marginTop: '8px', overflow: 'hidden', boxShadow: 'var(--g1-shadow)' }}>
           {results.length > 0 ? (
             results.map(v => (
               <div
@@ -43,16 +45,16 @@ function SearchComponent({ vms, router }: { vms: any[], router: any }) {
                   setQuery('');
                   router.push(`/dashboard/mes-vms/${v.id}`);
                 }}
-                style={{ padding: '10px 16px', display: 'flex', flexDirection: 'column', cursor: 'pointer', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)')}
+                style={{ padding: '10px 16px', display: 'flex', flexDirection: 'column', cursor: 'pointer', borderBottom: '1px solid var(--g1-border)' }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--g1-nav)')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
-                <div style={{ fontSize: '13px', fontWeight: 600, color: '#F8FAFC' }}>{v.name}</div>
-                <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '2px' }}>{v.ip_address || 'Pas d\'IP'} · {v.os}</div>
+                <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--g1-text)' }}>{v.name}</div>
+                <div style={{ fontSize: '11px', color: 'var(--g1-muted)', marginTop: '2px' }}>{v.ip_address || 'Pas d\'IP'} · {v.os}</div>
               </div>
             ))
           ) : (
-            <div style={{ padding: '12px 16px', fontSize: '13px', color: '#94A3B8' }}>Aucune VM trouvée.</div>
+            <div style={{ padding: '12px 16px', fontSize: '13px', color: 'var(--g1-muted)' }}>Aucune VM trouvée.</div>
           )}
         </div>
       )}
@@ -69,6 +71,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
   const { user, logout } = useAuth();
   const { vms, refreshVMs, clusterStatus, refreshClusterStatus } = useVMs();
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (refreshClusterStatus) {
@@ -89,7 +92,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="dashboard-theme">
+    <div className={`dashboard-theme ${theme === 'light' ? 'light-theme' : ''}`}>
       <div className="shell">
         <div className="sidebar">
 
@@ -107,7 +110,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             <div className="nav-group">
               <div className="nav-group-label">Mes machines virtuelles</div>
               <Link href="/dashboard/mes-vms" className={`nav-item ${pathname === '/dashboard/mes-vms' ? 'active' : ''}`}><Icon name="vms" /> Mes VMs
-                <span style={{ marginLeft: 'auto', background: 'rgba(37,99,235,.25)', color: '#93C5FD', fontSize: '9px', fontWeight: '700', padding: '1px 6px', borderRadius: '10px' }}>{vms.length}</span>
+                <span style={{ marginLeft: 'auto', background: 'var(--g1-tag)', color: 'var(--g1-tag-text)', fontSize: '9px', fontWeight: '700', padding: '1px 6px', borderRadius: '10px' }}>{vms.length}</span>
               </Link>
               <div className="nav-vm-list">
                 {vms.map(vm => (
@@ -154,6 +157,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
             <SearchComponent vms={vms} router={router} />
             <div className="topbar-right">
+              <ThemeToggle />
               <div className={`status-pill ${clusterStatus?.online === false ? 'offline' : ''}`}>
                 <div className={`status-dot ${clusterStatus?.online === false ? 'offline' : ''}`}></div>
                 {clusterStatus === null ? 'Vérification...' : clusterStatus?.online ? 'Cluster en ligne' : 'Cluster hors ligne'}
@@ -200,8 +204,10 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <VMProvider>
-      <DashboardLayoutInner>{children}</DashboardLayoutInner>
-    </VMProvider>
+    <ThemeProvider>
+      <VMProvider>
+        <DashboardLayoutInner>{children}</DashboardLayoutInner>
+      </VMProvider>
+    </ThemeProvider>
   )
 }

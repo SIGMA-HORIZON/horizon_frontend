@@ -32,7 +32,7 @@ export default function SshKeys() {
               </div>
               <div>
                 <h4 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--g1-text)', marginBottom: '6px' }}>MacBook Pro Ornella</h4>
-                <p style={{ fontSize: '13px', fontFamily: 'monospace', color: 'var(--g1-muted)', marginBottom: '10px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--g1-border)', padding: '6px 10px', borderRadius: '6px' }}>SHA256:xK2mP4rQn8vL1oZ3jT6wY9bA5sC7dE0fG · ed25519</p>
+                <p style={{ fontSize: '13px', fontFamily: 'monospace', color: 'var(--g1-muted)', marginBottom: '10px', background: 'var(--g1-nav)', border: '1px solid var(--g1-border)', padding: '6px 10px', borderRadius: '6px' }}>SHA256:xK2mP4rQn8vL1oZ3jT6wY9bA5sC7dE0fG · ed25519</p>
                 <div style={{ fontSize: '12px', color: 'var(--g1-off)', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
                   <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" fill="none"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   Ajoutée le 21/03/2026
@@ -110,13 +110,13 @@ export default function SshKeys() {
 
 const overlayStyle: React.CSSProperties = {
   position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-  backgroundColor: 'rgba(3, 6, 16, 0.85)', backdropFilter: 'blur(8px)',
+  backgroundColor: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(8px)',
   display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px'
 };
 
 const contentStyle: React.CSSProperties = {
-  background: 'var(--g1-card)', border: '1px solid var(--g1-border)', borderTop: '1px solid rgba(0,180,216,0.4)', borderRadius: '16px',
-  width: '100%', maxWidth: '500px', boxShadow: '0 20px 40px rgba(0,0,0,0.6)', position: 'relative'
+  background: 'var(--g1-card)', border: '1px solid var(--g1-border)', borderTop: '1px solid var(--g1-accent)', borderRadius: '16px',
+  width: '100%', maxWidth: '500px', boxShadow: 'var(--g1-shadow)', position: 'relative'
 };
 
 const headerStyle: React.CSSProperties = {
@@ -132,7 +132,7 @@ const labelStyle: React.CSSProperties = { fontSize: '12px', fontWeight: 600, col
 const inputStyle: React.CSSProperties = {
   padding: '12px 14px', fontSize: '14px', color: 'var(--g1-text)',
   border: '1px solid var(--g1-border)', borderRadius: '8px', outline: 'none', fontFamily: 'inherit', width: '100%',
-  background: 'rgba(255,255,255,0.03)', marginTop: '8px',
+  background: 'var(--g1-nav)', marginTop: '8px',
   transition: 'border-color 0.2s',
 };
 const footerStyle: React.CSSProperties = { display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '32px' };

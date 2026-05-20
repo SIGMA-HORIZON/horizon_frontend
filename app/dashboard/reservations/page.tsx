@@ -23,7 +23,7 @@ export default function Reservations() {
           border: '1px solid var(--g1-border)', 
           borderTop: '1px solid rgba(0,180,216,0.3)',
           borderRadius: '12px', 
-          boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+          boxShadow: 'var(--g1-shadow)',
           textAlign: 'center',
           marginTop: '20px'
         }}>
@@ -37,7 +37,7 @@ export default function Reservations() {
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: '24px',
-            boxShadow: '0 0 30px rgba(37,99,235,0.1) inset, 0 0 20px rgba(0,0,0,0.4)'
+            boxShadow: '0 0 30px rgba(37,99,235,0.1) inset, var(--g1-shadow)'
           }}>
             <svg viewBox="0 0 24 24" width="36" height="36" stroke="var(--g1-accent2)" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -72,7 +72,7 @@ export default function Reservations() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+              boxShadow: 'var(--g1-shadow)'
             }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
@@ -84,7 +84,7 @@ export default function Reservations() {
                 <div style={{ fontSize: '13px', color: 'var(--g1-muted)' }}>
                   Soumise le {res.date} · Requête #{res.id}
                 </div>
-                <div style={{ display: 'flex', gap: '16px', marginTop: '16px', fontSize: '13px', color: '#CBD5E1' }}>
+                <div style={{ display: 'flex', gap: '16px', marginTop: '16px', fontSize: '13px', color: 'var(--g1-muted)' }}>
                   <span><b style={{ color: 'var(--g1-text)' }}>OS:</b> {res.os}</span>
                   <span><b style={{ color: 'var(--g1-text)' }}>vCPU:</b> {res.cpu}</span>
                   <span><b style={{ color: 'var(--g1-text)' }}>RAM:</b> {res.ram}</span>
