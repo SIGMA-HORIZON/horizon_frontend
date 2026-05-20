@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Removed custom webpack config for noVNC as it causes module format issues
+  // Transpile noVNC to handle top-level await and CJS
+  transpilePackages: ["@novnc/novnc"],
+  webpack: (config) => {
+    // Enable top-level await for ESM modules
+    config.experiments = {
+      ...(config.experiments || {}),
+      topLevelAwait: true,
+    };
+    return config;
+  },
 };
 
 export default nextConfig;
