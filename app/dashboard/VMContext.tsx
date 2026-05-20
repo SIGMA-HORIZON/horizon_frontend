@@ -22,6 +22,7 @@ export interface VM {
   ram_usage?: number;
   os_name?: string;
   os_family?: string;
+  is_template_based: boolean;
 }
 
 export interface Reservation {
@@ -101,8 +102,12 @@ export const VMProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const refreshQuota = async () => {
-    // Placeholder for refreshQuota - implementation should be added when endpoint is available
-    console.warn("refreshQuota is not implemented yet");
+    try {
+      const q = await (vmService as any).getQuota();
+      setQuota(q);
+    } catch (error) {
+      console.error("Failed to fetch quota:", error);
+    }
   };
 
   const refreshSingleVM = async (vmid: string) => {

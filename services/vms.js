@@ -69,5 +69,10 @@ export const vmService = {
     async proxmoxCreateVm(data) {
         const response = await api.post('/vms/proxmox/create-vm', data);
         return response.data;
+    },
+
+    async getQuota() {
+        const response = await api.get('/vms/quota');
+        return response.data;
     }
 };

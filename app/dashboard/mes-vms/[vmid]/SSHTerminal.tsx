@@ -101,8 +101,9 @@ export default function SSHTerminal({ vmid, onClose }: SSHTerminalProps) {
 
         return () => {
             window.removeEventListener('resize', handleResize);
-            term.dispose();
-            ws.close();
+            if (term) term.dispose();
+            if (ws && ws.readyState === WebSocket.OPEN) ws.close();
+            else if (ws) ws.close(); 
         };
     }, [vmid]);
 
@@ -120,9 +121,15 @@ export default function SSHTerminal({ vmid, onClose }: SSHTerminalProps) {
                 
                 {error && (
                     <div className="terminal-error">
-                        <Icon name="error" size={16} />
-                        {error}
-                        <button className="btn-primary" onClick={() => window.location.reload()}>Réessayer</button>
+                        <div className="error-content">
+                            <Icon name="error" size={32} />
+                            <h3>Erreur de connexion</h3>
+                            <p>{error}</p>
+                            <div className="error-actions">
+                                <button className="btn-primary" onClick={() => window.location.reload()}>Réessayer</button>
+                                <button className="btn-secondary" onClick={onClose}>Fermer</button>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -203,14 +210,68 @@ export default function SSHTerminal({ vmid, onClose }: SSHTerminalProps) {
                 }
                 .terminal-error {
                     position: absolute;
-                    top: 50%; left: 50%;
-                    transform: translate(-50%, -50%);
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    background: rgba(3, 6, 16, 0.95);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10;
+                }
+                .error-content {
+                    max-width: 400px;
+                    padding: 40px;
+                    background: #060a1a;
+                    border: 1px solid rgba(255, 95, 86, 0.3);
+                    border-radius: 16px;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 16px;
-                    color: #ff5f56;
+                    gap: 20px;
                     text-align: center;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                }
+                .error-content h3 {
+                    margin: 0;
+                    color: #fff;
+                    font-size: 1.25rem;
+                }
+                .error-content p {
+                    margin: 0;
+                    color: var(--g1-muted);
+                    line-height: 1.5;
+                    font-size: 0.95rem;
+                }
+                .error-actions {
+                    display: flex;
+                    gap: 12px;
+                    margin-top: 10px;
+                }
+                .btn-primary {
+                    background: var(--g1-accent);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .btn-primary:hover {
+                    opacity: 0.9;
+                    transform: translateY(-1px);
+                }
+                .btn-secondary {
+                    background: rgba(255,255,255,0.05);
+                    color: #fff;
+                    border: 1px solid var(--g1-border);
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .btn-secondary:hover {
+                    background: rgba(255,255,255,0.1);
                 }
             `}</style>
         </div>

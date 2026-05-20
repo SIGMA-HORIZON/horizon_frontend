@@ -198,6 +198,7 @@ export default function VMDetails() {
           osFamily={vm.os_family} 
           onOpenTerminal={() => setShowTerminal(true)}
           disabled={isExpired}
+          isTemplateBased={vm.is_template_based}
         />
       </div>
 
@@ -277,7 +278,7 @@ function EditableRow({ label, value, field, editingField, editValue, onEdit, onS
   );
 }
 
-function SSHCard({ ip, hasKey, onDownload, osFamily, onOpenTerminal, disabled }: any) {
+function SSHCard({ ip, hasKey, onDownload, osFamily, onOpenTerminal, disabled, isTemplateBased }: any) {
   return (
     <div className={`details-card ${disabled ? 'vm-locked' : ''}`} style={{ borderTopColor: 'var(--g1-accent2)' }}>
       <div className="details-card-header">
@@ -285,13 +286,25 @@ function SSHCard({ ip, hasKey, onDownload, osFamily, onOpenTerminal, disabled }:
         Accès SSH
       </div>
       <div className="pm-body">
+        {!isTemplateBased && (
+          <div className="pm-alert pm-alert-warn" style={{ marginBottom: '16px', background: 'rgba(255, 189, 46, 0.1)', borderLeft: '3px solid var(--g1-warn)', padding: '12px', borderRadius: '4px' }}>
+            <p style={{ fontSize: '12px', color: 'var(--g1-warn)', fontWeight: '600' }}>
+              <Icon name="info" size={14} style={{ marginRight: '6px' }} />
+              Installation manuelle requise
+            </p>
+            <p style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.7)', marginTop: '4px' }}>
+              Cette VM a été créée depuis un ISO. L'accès SSH doit être configuré manuellement dans l'OS pour que le terminal fonctionne.
+            </p>
+          </div>
+        )}
+        
         <p style={{ fontSize: '13px', color: 'var(--g1-muted)', marginBottom: '12px' }}>Connectez-vous via terminal :</p>
         <code style={{ display: 'block', background: '#030610', padding: '12px', borderRadius: '8px', border: '1px solid var(--g1-border)', color: 'var(--g1-accent)', fontSize: '12px' }}>
           ssh {osFamily === 'WINDOWS' ? 'Administrator' : 'user'}@{ip || 'IP'}
         </code>
         
         <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-          {hasKey && (
+          {hasKey && isTemplateBased && (
             <button className="btn-primary" style={{ flex: 1 }} onClick={onDownload}>
               <Icon name="download" />
               Clé
@@ -303,9 +316,15 @@ function SSHCard({ ip, hasKey, onDownload, osFamily, onOpenTerminal, disabled }:
           </button>
         </div>
 
-        {!hasKey && (
+        {hasKey && isTemplateBased && (
           <div className="pm-alert pm-alert-info" style={{ marginTop: '16px' }}>
-            <p style={{ fontSize: '12px' }}>Clé déjà téléchargée ou fournie.</p>
+            <p style={{ fontSize: '12px' }}>Clé disponible pour téléchargement unique.</p>
+          </div>
+        )}
+
+        {!isTemplateBased && (
+           <div className="pm-alert pm-alert-info" style={{ marginTop: '16px', background: 'rgba(255,255,255,0.03)' }}>
+            <p style={{ fontSize: '11px', color: 'var(--g1-muted)' }}>Assurez-vous que l'agent QEMU est actif pour récupérer l'IP.</p>
           </div>
         )}
       </div>
