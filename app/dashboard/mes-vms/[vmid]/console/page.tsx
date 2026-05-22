@@ -4,68 +4,6 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Monitor, RefreshCw } from 'lucide-react';
 
-/**
- * Console VNC — charge noVNC via CDN (contourne le problème ESM/top-level-await de webpack).
- *
- * Le module @novnc/novnc v1.6+ utilise des modules ESM natifs avec `top-level await`,
- * ce qui est incompatible avec le bundler webpack de Next.js. Au lieu d'importer via
- * node_modules, on charge le script ESM directement dans le navigateur.
- */
-
-// CDN URL for noVNC RFB module (ESM build)
-const NOVNC_CDN_URL = "https://cdn.jsdelivr.net/npm/@novnc/novnc@1.6.0/lib/rfb.js";
-
-function loadNoVNCScript(): Promise<any> {
-    return new Promise((resolve, reject) => {
-        // If already loaded, return cached constructor
-        if ((window as any).__noVNC_RFB) {
-            resolve((window as any).__noVNC_RFB);
-            return;
-        }
-
-        // Use dynamic import() in the browser context (not webpack)
-        // We create a script module that re-exports RFB to a global
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.textContent = `
-            import RFB from "${NOVNC_CDN_URL}";
-            window.__noVNC_RFB = RFB;
-            window.dispatchEvent(new Event('novnc-loaded'));
-        `;
-
-        const onLoaded = () => {
-            window.removeEventListener('novnc-loaded', onLoaded);
-            if ((window as any).__noVNC_RFB) {
-                resolve((window as any).__noVNC_RFB);
-            } else {
-                reject(new Error("noVNC loaded but RFB constructor not found"));
-            }
-        };
-
-        window.addEventListener('novnc-loaded', onLoaded);
-
-        script.onerror = (err) => {
-            window.removeEventListener('novnc-loaded', onLoaded);
-            reject(new Error(`Failed to load noVNC from CDN: ${err}`));
-        };
-
-        // Timeout fallback
-        const timeout = setTimeout(() => {
-            window.removeEventListener('novnc-loaded', onLoaded);
-            // Check one more time in case the event fired but was missed
-            if ((window as any).__noVNC_RFB) {
-                resolve((window as any).__noVNC_RFB);
-            } else {
-                reject(new Error("noVNC loading timed out (15s)"));
-            }
-        }, 15000);
-
-        window.addEventListener('novnc-loaded', () => clearTimeout(timeout), { once: true });
-
-        document.head.appendChild(script);
-    });
-}
-
 export default function ConsoleViewer() {
     const params = useParams();
     const vmid = params.vmid as string;
@@ -88,17 +26,29 @@ export default function ConsoleViewer() {
         try {
             setStatus('Loading VNC client...');
 
-            // 1. Load noVNC from CDN
-            const RFBConstructor = await loadNoVNCScript();
+            // Dynamically import noVNC (we downgraded to 1.4.0 to fix webpack issues)
+            const noVncModule: any = await import('@novnc/novnc/core/rfb');
+            
+            // Handle different export formats
+            let RFBConstructor;
+            if (noVncModule.default) {
+                RFBConstructor = noVncModule.default.default || noVncModule.default;
+            } else {
+                RFBConstructor = noVncModule;
+            }
+
+            if (typeof RFBConstructor !== 'function') {
+                throw new Error('RFB constructor not found in module');
+            }
 
             setStatus('Fetching VNC ticket...');
 
-            // 2. Get the JWT token from localStorage
+            // Get the JWT token from localStorage
             const token = localStorage.getItem('horizon_token') || '';
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
             const WS_BASE_URL = API_BASE_URL.replace('http', 'ws');
 
-            // 3. Fetch the VNC ticket and port from the backend
+            // Fetch the VNC ticket and port from the backend
             const response = await fetch(`${API_BASE_URL}/vms/${vmid}/console`, {
                 method: 'GET',
                 headers: {
@@ -119,14 +69,14 @@ export default function ConsoleViewer() {
                 throw new Error('No ticket or port received from server');
             }
 
-            // 4. Connect to our backend WebSocket proxy
+            // Connect to our backend WebSocket proxy
             const encodedTicket = encodeURIComponent(ticket);
             const wsUrl = `${WS_BASE_URL}/vms/vnc/${vmid}?port=${port}&ticket=${encodedTicket}`;
             console.log(`Connecting to VNC at: ${wsUrl}`);
 
             setStatus('Connecting to console...');
 
-            // 5. Create RFB instance
+            // Create RFB instance
             const rfb = new RFBConstructor(containerRef.current, wsUrl, {
                 credentials: { password: ticket },
                 wsProtocols: ['binary'],
