@@ -1,9 +1,70 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-// import RFB from '@novnc/novnc/lib/rfb'; // Removed static import
-import { ArrowLeft, Monitor } from 'lucide-react';
+import { ArrowLeft, Monitor, RefreshCw } from 'lucide-react';
+
+/**
+ * Console VNC — charge noVNC via CDN (contourne le problème ESM/top-level-await de webpack).
+ *
+ * Le module @novnc/novnc v1.6+ utilise des modules ESM natifs avec `top-level await`,
+ * ce qui est incompatible avec le bundler webpack de Next.js. Au lieu d'importer via
+ * node_modules, on charge le script ESM directement dans le navigateur.
+ */
+
+// CDN URL for noVNC RFB module (ESM build)
+const NOVNC_CDN_URL = "https://cdn.jsdelivr.net/npm/@novnc/novnc@1.6.0/lib/rfb.js";
+
+function loadNoVNCScript(): Promise<any> {
+    return new Promise((resolve, reject) => {
+        // If already loaded, return cached constructor
+        if ((window as any).__noVNC_RFB) {
+            resolve((window as any).__noVNC_RFB);
+            return;
+        }
+
+        // Use dynamic import() in the browser context (not webpack)
+        // We create a script module that re-exports RFB to a global
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.textContent = `
+            import RFB from "${NOVNC_CDN_URL}";
+            window.__noVNC_RFB = RFB;
+            window.dispatchEvent(new Event('novnc-loaded'));
+        `;
+
+        const onLoaded = () => {
+            window.removeEventListener('novnc-loaded', onLoaded);
+            if ((window as any).__noVNC_RFB) {
+                resolve((window as any).__noVNC_RFB);
+            } else {
+                reject(new Error("noVNC loaded but RFB constructor not found"));
+            }
+        };
+
+        window.addEventListener('novnc-loaded', onLoaded);
+
+        script.onerror = (err) => {
+            window.removeEventListener('novnc-loaded', onLoaded);
+            reject(new Error(`Failed to load noVNC from CDN: ${err}`));
+        };
+
+        // Timeout fallback
+        const timeout = setTimeout(() => {
+            window.removeEventListener('novnc-loaded', onLoaded);
+            // Check one more time in case the event fired but was missed
+            if ((window as any).__noVNC_RFB) {
+                resolve((window as any).__noVNC_RFB);
+            } else {
+                reject(new Error("noVNC loading timed out (15s)"));
+            }
+        }, 15000);
+
+        window.addEventListener('novnc-loaded', () => clearTimeout(timeout), { once: true });
+
+        document.head.appendChild(script);
+    });
+}
 
 export default function ConsoleViewer() {
     const params = useParams();
@@ -11,151 +72,136 @@ export default function ConsoleViewer() {
     const router = useRouter();
     const containerRef = useRef<HTMLDivElement>(null);
     const rfbRef = useRef<any>(null);
-    const [status, setStatus] = useState('Connecting...');
+    const [status, setStatus] = useState('Initializing...');
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        let rfb: any;
-        let cancelled = false;
+    const connect = useCallback(async () => {
+        if (!containerRef.current) return;
 
-        const connect = async () => {
-            if (!containerRef.current) return;
+        // Cleanup previous connection if any
+        if (rfbRef.current) {
+            try { rfbRef.current.disconnect(); } catch { /* ignore */ }
+            rfbRef.current = null;
+        }
+        setError(null);
 
-            try {
-                setStatus('Fetching VNC ticket...');
-                
-                // Get the JWT token from localStorage
-                const token = localStorage.getItem('horizon_token') || '';
+        try {
+            setStatus('Loading VNC client...');
 
-                const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
-                const WS_BASE_URL = API_BASE_URL.replace('http', 'ws');
+            // 1. Load noVNC from CDN
+            const RFBConstructor = await loadNoVNCScript();
 
-                // 1. Fetch the VNC ticket and port from the backend
-                const response = await fetch(`${API_BASE_URL}/vms/${vmid}/console`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Failed to get VNC ticket: ${response.status} - ${errorText}`);
+            setStatus('Fetching VNC ticket...');
+
+            // 2. Get the JWT token from localStorage
+            const token = localStorage.getItem('horizon_token') || '';
+            const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
+            const WS_BASE_URL = API_BASE_URL.replace('http', 'ws');
+
+            // 3. Fetch the VNC ticket and port from the backend
+            const response = await fetch(`${API_BASE_URL}/vms/${vmid}/console`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
+            });
 
-                const ticketData = await response.json();
-                const ticket = ticketData?.ticket || '';
-                const port = ticketData?.port || '';
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to get VNC ticket: ${response.status} - ${errorText}`);
+            }
 
-                if (!ticket || !port) {
-                    throw new Error('No ticket or port received from server');
-                }
+            const ticketData = await response.json();
+            const ticket = ticketData?.ticket || '';
+            const port = ticketData?.port || '';
 
-                if (cancelled) return;
+            if (!ticket || !port) {
+                throw new Error('No ticket or port received from server');
+            }
 
-                // 2. Connect to our backend WebSocket proxy
-                const encodedTicket = encodeURIComponent(ticket);
-                const wsUrl = `${WS_BASE_URL}/vms/vnc/${vmid}?port=${port}&ticket=${encodedTicket}`;
-                console.log(`Connecting to VNC at: ${wsUrl}`);
+            // 4. Connect to our backend WebSocket proxy
+            const encodedTicket = encodeURIComponent(ticket);
+            const wsUrl = `${WS_BASE_URL}/vms/vnc/${vmid}?port=${port}&ticket=${encodedTicket}`;
+            console.log(`Connecting to VNC at: ${wsUrl}`);
 
-                // Dynamic import noVNC
-                const noVncModule: any = await import('@novnc/novnc/lib/rfb');
-                
-                // Handle different export formats (CJS vs ESM)
-                let RFBConstructor;
-                if (noVncModule.default) {
-                    RFBConstructor = noVncModule.default.default || noVncModule.default;
-                } else {
-                    RFBConstructor = noVncModule;
-                }
+            setStatus('Connecting to console...');
 
-                if (typeof RFBConstructor !== 'function') {
-                    throw new Error('RFB constructor not found in module');
-                }
+            // 5. Create RFB instance
+            const rfb = new RFBConstructor(containerRef.current, wsUrl, {
+                credentials: { password: ticket },
+                wsProtocols: ['binary'],
+                shared: true,
+                view_only: false,
+                resizeSession: false
+            });
 
-                // Configure noVNC
-                rfb = new RFBConstructor(containerRef.current, wsUrl, {
-                    credentials: { password: ticket },
-                    wsProtocols: ['binary'],
-                    shared: true,
-                    view_only: false,
-                    resizeSession: false
-                });
+            rfbRef.current = rfb;
 
-                // Store reference for cleanup
-                rfbRef.current = rfb;
+            rfb.addEventListener('connect', () => {
+                console.log('VNC Connected successfully');
+                setStatus('Connected');
+                setError(null);
 
-                rfb.addEventListener('connect', () => {
-                    console.log('VNC Connected successfully');
-                    setStatus('Connected');
-                    setError(null);
+                // After connection, set scaling
+                setTimeout(() => {
+                    if (rfbRef.current) {
+                        rfbRef.current.scaleViewport = true;
+                        rfbRef.current.clipViewport = false;
 
-                    // After connection, try to set scaling
-                    setTimeout(() => {
-                        if (rfbRef.current) {
-                            // Scale to fit container
-                            rfbRef.current.scaleViewport = true;
-                            rfbRef.current.clipViewport = false;
-
-                            // Force a resize of the canvas
-                            if (containerRef.current) {
-                                const canvas = containerRef.current.querySelector('canvas');
-                                if (canvas) {
-                                    canvas.style.width = '100%';
-                                    canvas.style.height = '100%';
-                                    canvas.style.objectFit = 'contain';
-                                }
+                        if (containerRef.current) {
+                            const canvas = containerRef.current.querySelector('canvas');
+                            if (canvas) {
+                                canvas.style.width = '100%';
+                                canvas.style.height = '100%';
+                                canvas.style.objectFit = 'contain';
                             }
                         }
-                    }, 100);
-                });
-
-                rfb.addEventListener('disconnect', (e: any) => {
-                    console.log('VNC Disconnected:', e.detail);
-                    setStatus(e.detail.clean ? 'Disconnected' : 'Connection Failed');
-                    if (!e.detail.clean) {
-                        setError(`Disconnected: ${e.detail.reason || 'Unknown reason'}`);
                     }
-                });
+                }, 100);
+            });
 
-                rfb.addEventListener('securityfailure', (e: any) => {
-                    console.error('Security failure:', e.detail);
-                    setStatus('Authentication Failed');
-                    setError(`Security failure: ${e.detail.reason}`);
-                });
+            rfb.addEventListener('disconnect', (e: any) => {
+                console.log('VNC Disconnected:', e.detail);
+                setStatus(e.detail.clean ? 'Disconnected' : 'Connection Failed');
+                if (!e.detail.clean) {
+                    setError(`Disconnected: ${e.detail.reason || 'Unknown reason'}`);
+                }
+            });
 
-                rfb.addEventListener('desktopname', (e: any) => {
-                    console.log('Desktop name:', e.detail.name);
-                });
+            rfb.addEventListener('securityfailure', (e: any) => {
+                console.error('Security failure:', e.detail);
+                setStatus('Authentication Failed');
+                setError(`Security failure: ${e.detail.reason}`);
+            });
 
-                // Set initial scaling options
-                rfb.scaleViewport = true;
-                rfb.clipViewport = false;
-                rfb.qualityLevel = 6;
-                rfb.compressionLevel = 2;
+            rfb.addEventListener('desktopname', (e: any) => {
+                console.log('Desktop name:', e.detail.name);
+            });
 
-                console.log('RFB instance created and configured');
+            // Set initial scaling options
+            rfb.scaleViewport = true;
+            rfb.clipViewport = false;
+            rfb.qualityLevel = 6;
+            rfb.compressionLevel = 2;
 
-            } catch (error: any) {
-                console.error("VNC connection error:", error);
-                setStatus('Error connecting to VNC');
-                setError(error.message);
-            }
-        };
+            console.log('RFB instance created and configured');
 
+        } catch (error: any) {
+            console.error("VNC connection error:", error);
+            setStatus('Error');
+            setError(error.message);
+        }
+    }, [vmid]);
+
+    useEffect(() => {
         connect();
 
         return () => {
-            cancelled = true;
             if (rfbRef.current) {
-                try {
-                    rfbRef.current.disconnect();
-                } catch (e) {
-                    console.error('Error disconnecting RFB:', e);
-                }
+                try { rfbRef.current.disconnect(); } catch { /* ignore */ }
             }
         };
-    }, [vmid]);
+    }, [connect]);
 
     // Handle window resize to adjust canvas
     useEffect(() => {
@@ -187,9 +233,18 @@ export default function ConsoleViewer() {
                     </h2>
                 </div>
                 <div className="flex items-center gap-3">
+                    {(status === 'Error' || status === 'Connection Failed' || status === 'Disconnected') && (
+                        <button
+                            onClick={connect}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-sm transition"
+                        >
+                            <RefreshCw size={14} />
+                            Reconnect
+                        </button>
+                    )}
                     <div className={`w-3 h-3 rounded-full ${status === 'Connected' ? 'bg-green-500 animate-pulse' :
-                        status === 'Connecting...' ? 'bg-yellow-500' :
-                            'bg-red-500'
+                        status.startsWith('Error') || status === 'Connection Failed' || status === 'Authentication Failed' ? 'bg-red-500' :
+                            'bg-yellow-500 animate-pulse'
                         }`}></div>
                     <span className="font-mono text-sm">{status}</span>
                 </div>
@@ -216,8 +271,11 @@ export default function ConsoleViewer() {
                 {status !== 'Connected' && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/80">
                         <div className="text-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+                            {status !== 'Error' && status !== 'Connection Failed' && status !== 'Disconnected' && status !== 'Authentication Failed' && (
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto mb-4"></div>
+                            )}
                             <p>{status}</p>
+                            {error && <p className="text-red-400 text-sm mt-2 max-w-md">{error}</p>}
                         </div>
                     </div>
                 )}
