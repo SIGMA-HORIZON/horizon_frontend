@@ -6,12 +6,23 @@ const nextConfig: NextConfig = {
   
   transpilePackages: ["@novnc/novnc"],
 
+  experimental: {
+    esmExternals: 'loose',
+  },
+
   webpack: (config) => {
     // Enable top-level await in case other ESM modules need it
     config.experiments = {
       ...(config.experiments || {}),
       topLevelAwait: true,
     };
+
+    // Force Webpack to parse noVNC as ECMAScript Module so top-level await is allowed
+    config.module.rules.push({
+      test: /\.js$/,
+      include: /node_modules\/@novnc\/novnc/,
+      type: "javascript/esm"
+    });
 
     return config;
   },
