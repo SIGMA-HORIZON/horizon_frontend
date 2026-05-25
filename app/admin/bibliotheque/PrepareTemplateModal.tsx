@@ -16,9 +16,9 @@ export default function PrepareTemplateModal({ onClose, onSuccess, availableIsos
     // Form fields
     const [vmid, setVmid] = useState<number>(9100);
     const [node, setNode] = useState('');
-    const [storage, setStorage] = useState('');
+    const [storage, setStorage] = useState('stockage.ceph');
     const [isoFilename, setIsoFilename] = useState('');
-    const [isoStorage, setIsoStorage] = useState('nfs-shared-iso');
+    const [isoStorage, setIsoStorage] = useState('stockage.ceph');
     const [name, setName] = useState('template-prepare');
     const [vcpu, setVcpu] = useState(2);
     const [ramMb, setRamMb] = useState(2048);
@@ -170,29 +170,7 @@ export default function PrepareTemplateModal({ onClose, onSuccess, availableIsos
                         </p>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                        {/* Storages */}
-                        <div>
-                            <label style={labelStyle}>Stockage Disque</label>
-                            <input
-                                type="text"
-                                value={storage}
-                                onChange={e => setStorage(e.target.value)}
-                                style={inputStyle}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label style={labelStyle}>Stockage ISO (si différent)</label>
-                            <input
-                                type="text"
-                                value={isoStorage}
-                                onChange={e => setIsoStorage(e.target.value)}
-                                placeholder="Auto"
-                                style={inputStyle}
-                            />
-                        </div>
-                    </div>
+
 
                     {/* VM Name */}
                     <div>

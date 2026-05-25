@@ -19,6 +19,7 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
 
     // Form metadata
     const [name, setName] = useState('');
+
     const [osFamily, setOsFamily] = useState('LINUX');
     const [osVersion, setOsVersion] = useState('');
     const [description, setDescription] = useState('');

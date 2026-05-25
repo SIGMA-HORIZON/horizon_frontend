@@ -101,17 +101,6 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
                         </div>
                     </div>
 
-                    <div style={rowStyle}>
-                        <div className="form-group" style={{ ...formGroupStyle, flex: 1 }}>
-                            <label style={labelStyle}>Placement</label>
-                            <div style={{ ...inputStyle, background: '#F8FAFC', color: '#64748B' }}>Optimisé (Sélecteur automatique)</div>
-                        </div>
-                        <div className="form-group" style={{ ...formGroupStyle, flex: 1 }}>
-                            <label style={labelStyle}>Stockage Cible</label>
-                            <div style={{ ...inputStyle, background: '#F8FAFC', color: '#64748B' }}>Automatique (via réglages)</div>
-                        </div>
-                    </div>
-
                     <div className="form-group" style={formGroupStyle}>
                         <label style={labelStyle}>Fichier ISO</label>
                         <select style={inputStyle} value={isoFilename} onChange={e => setIsoFilename(e.target.value)} required disabled={isLoading}>
