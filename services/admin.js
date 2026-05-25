@@ -153,8 +153,6 @@ export const adminService = {
         formData.append('file', file);
 
         const params = {
-            node: meta.node || 'pve',
-            storage: meta.storage || 'local',
             name: meta.name || file.name,
             os_family: meta.os_family || 'LINUX',
             os_version: meta.os_version || 'Unknown',

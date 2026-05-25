@@ -19,8 +19,6 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
 
     // Form metadata
     const [name, setName] = useState('');
-    const [storage, setStorage] = useState('local');
-    const [node, setNode] = useState('pve');
     const [osFamily, setOsFamily] = useState('LINUX');
     const [osVersion, setOsVersion] = useState('');
     const [description, setDescription] = useState('');
@@ -62,7 +60,7 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
         try {
             await adminService.uploadIso(
                 file,
-                { node, storage, name, os_family: osFamily, os_version: osVersion, description },
+                { name, os_family: osFamily, os_version: osVersion, description },
                 (progressEvent: any) => {
                     const pct = progressEvent.total
                         ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
@@ -264,21 +262,7 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
                                     style={inputStyle} />
                             </div>
 
-                            {/* Row: Node + Storage */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                <div>
-                                    <label style={labelStyle}>Nœud Proxmox</label>
-                                    <input type="text" value={node} onChange={e => setNode(e.target.value)}
-                                        placeholder="pve"
-                                        style={inputStyle} />
-                                </div>
-                                <div>
-                                    <label style={labelStyle}>Stockage cible</label>
-                                    <input type="text" value={storage} onChange={e => setStorage(e.target.value)}
-                                        placeholder="local"
-                                        style={inputStyle} />
-                                </div>
-                            </div>
+                            {/* Node and storage are managed by server-side defaults; not shown in the UI */}
 
                             {/* Row: OS Family + Version */}
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
