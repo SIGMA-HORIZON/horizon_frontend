@@ -50,11 +50,31 @@ export default function OSBibliotheque() {
           <div style={{ display: 'flex', background: 'var(--g1-nav)', padding: '4px', borderRadius: '10px', border: '1px solid var(--g1-border)' }}>
             <button
               onClick={() => setActiveTab('templates')}
-              style={{ padding: '8px 16px', border: 'none', background: activeTab === 'templates' ? 'var(--g1-accent2)' : 'transparent', color: activeTab === 'templates' ? 'white' : 'var(--g1-muted)', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+              style={{
+                padding: '8px 16px',
+                border: 'none',
+                background: activeTab === 'templates' ? 'var(--g1-accent2)' : 'transparent',
+                color: activeTab === 'templates' ? 'white' : 'var(--g1-muted)',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
             >Templates</button>
             <button
               onClick={() => setActiveTab('isos')}
-              style={{ padding: '8px 16px', border: 'none', background: activeTab === 'isos' ? 'var(--g1-accent2)' : 'transparent', color: activeTab === 'isos' ? 'white' : 'var(--g1-muted)', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+              style={{
+                padding: '8px 16px',
+                border: 'none',
+                background: activeTab === 'isos' ? 'var(--g1-accent2)' : 'transparent',
+                color: activeTab === 'isos' ? 'white' : 'var(--g1-muted)',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
             >Fichiers ISO</button>
           </div>
 
@@ -68,11 +88,11 @@ export default function OSBibliotheque() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: '8px',
                   padding: '9px 18px',
-                  background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                  background: 'linear-gradient(135deg, var(--g1-accent2), var(--g1-accent))',
                   border: 'none', color: 'white',
                   borderRadius: '10px', fontSize: '13px', fontWeight: 600,
                   cursor: 'pointer',
-                  boxShadow: '0 4px 14px rgba(99,102,241,0.35)',
+                  boxShadow: '0 4px 14px rgba(99,102,241,0.25)',
                   transition: 'all 0.2s',
                 }}
               >

@@ -82,32 +82,14 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
     const isLocked = status === 'uploading' || status === 'processing' || status === 'success';
 
     return (
-        <div style={{
-            position: 'fixed', inset: 0,
-            backgroundColor: 'rgba(5, 10, 20, 0.75)',
-            backdropFilter: 'blur(6px)',
-            display: 'flex', justifyContent: 'center', alignItems: 'center',
-            zIndex: 1000, padding: '20px',
-        }}>
-            <div style={{
-                background: 'linear-gradient(145deg, #0d1526, #111827)',
-                borderRadius: '20px',
-                width: '100%', maxWidth: '560px',
-                border: '1px solid rgba(255,255,255,0.08)',
-                boxShadow: '0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.15)',
-                overflow: 'hidden',
-            }}>
+        <div className="modal-overlay">
+            <div className="modal-container" style={{ maxWidth: '560px' }}>
                 {/* Header */}
-                <div style={{
-                    padding: '24px 28px',
-                    borderBottom: '1px solid rgba(255,255,255,0.06)',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    background: 'rgba(99,102,241,0.06)',
-                }}>
+                <div className="modal-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div style={{
                             width: '36px', height: '36px', borderRadius: '10px',
-                            background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                            background: 'linear-gradient(135deg, var(--g1-accent2), var(--g1-accent))',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                         }}>
                             <svg viewBox="0 0 24 24" width="18" height="18" stroke="white" fill="none" strokeWidth="2">
@@ -117,20 +99,16 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
                             </svg>
                         </div>
                         <div>
-                            <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#F1F5F9', margin: 0 }}>
+                            <h2 className="modal-title" style={{ fontSize: '16px', margin: 0 }}>
                                 Uploader un fichier ISO
                             </h2>
-                            <p style={{ fontSize: '12px', color: '#64748B', margin: 0 }}>
+                            <p style={{ fontSize: '12px', color: 'var(--g1-muted)', margin: 0 }}>
                                 Vers le stockage partagé Proxmox
                             </p>
                         </div>
                     </div>
                     {!isLocked && (
-                        <button onClick={onClose} style={{
-                            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
-                            borderRadius: '8px', color: '#64748B', cursor: 'pointer', padding: '6px',
-                            display: 'flex', alignItems: 'center',
-                        }}>
+                        <button className="modal-close" onClick={onClose}>
                             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2.5" fill="none">
                                 <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                             </svg>

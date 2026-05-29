@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { vmService } from '@/services/vms';
+import { adminService } from '@/services/admin';
 import { useAuth } from '../../context/AuthContext';
 
 export interface VM {
@@ -93,7 +94,6 @@ export const VMProvider = ({ children }: { children: React.ReactNode }) => {
 
   const refreshClusterStatus = async () => {
     try {
-      const { adminService } = await import('@/services/admin');
       const status = await adminService.getClusterStatus();
       setClusterStatus(status);
     } catch (error) {

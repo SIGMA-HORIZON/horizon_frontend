@@ -46,8 +46,16 @@ export const adminService = {
         const response = await api.post(`/admin/vms/${vmId}/stop`, { reason });
         return response.data;
     },
-    async adminDeleteVm(vmId) {
-        const response = await api.delete(`/admin/vms/${vmId}`);
+    async adminDeleteVm(vmId, reason = '') {
+        const response = await api.post(`/admin/vms/${vmId}/delete`, { reason });
+        return response.data;
+    },
+    async listExtensionRequests() {
+        const response = await api.get('/admin/vms/extensions');
+        return response.data;
+    },
+    async approveExtension(requestId, hours) {
+        const response = await api.post(`/admin/vms/extensions/${requestId}/approve`, { additional_hours: hours });
         return response.data;
     },
     async getAuditLogs(params) {

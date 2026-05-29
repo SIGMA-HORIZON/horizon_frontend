@@ -154,13 +154,38 @@ export default function VMDetails() {
               <p>Cette machine virtuelle est verrouillée car sa session a expiré le {new Date(vm.lease_end).toLocaleString()}.</p>
             </div>
           </div>
-          <button className="btn-extend" onClick={() => setModalConfig({
-            isOpen: true,
-            title: "Prolongation",
-            message: "La fonctionnalité de prolongation de session est en cours de déploiement et sera disponible prochainement.",
-            type: 'info',
-            showConfirm: false
-          })}>
+          <button className="btn-extend" onClick={() => {
+            const reason = prompt("Pourquoi souhaitez-vous étendre la durée de votre session ?");
+            if (reason === null) return;
+            
+            setModalConfig({
+              isOpen: true,
+              title: "Demande d'extension",
+              message: "Envoi de la demande à l'administrateur...",
+              type: 'info',
+              showConfirm: false
+            });
+
+            vmService.requestExtension(vm.id, reason || "Prolongation demandée par l'utilisateur.")
+              .then(() => {
+                setModalConfig({
+                  isOpen: true,
+                  title: "Demande envoyée",
+                  message: "Votre demande a été transmise avec succès. L'administrateur recevra un email.",
+                  type: 'success',
+                  showConfirm: false
+                });
+              })
+              .catch(err => {
+                setModalConfig({
+                  isOpen: true,
+                  title: "Erreur",
+                  message: err.response?.data?.detail || "Impossible d'envoyer la demande.",
+                  type: 'danger',
+                  showConfirm: false
+                });
+              });
+          }}>
             <Icon name="reboot" />
             Étendre la durée
           </button>
