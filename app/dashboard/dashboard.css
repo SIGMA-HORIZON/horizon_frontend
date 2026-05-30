@@ -18,6 +18,8 @@ h1, h2, h3, h4, h5, h6 { color: var(--g1-text); }
   --g1-tag: rgba(37,99,235,0.15);
   --g1-tag-text: #93C5FD;
   --g1-bg: #030610;
+  --g1-bg-alt: rgba(255,255,255,0.02);
+  --g1-bg-rgb: 3, 6, 16;
   --g1-grid: rgba(255,255,255,0.02);
   --g1-shadow: 0 10px 30px rgba(0,0,0,0.5);
   --g1-topbar: rgba(6,10,20,0.8);
@@ -41,6 +43,8 @@ h1, h2, h3, h4, h5, h6 { color: var(--g1-text); }
   --g1-tag: rgba(37,99,235,0.1);
   --g1-tag-text: #2563EB;
   --g1-bg: #F8FAFC;
+  --g1-bg-alt: rgba(0,0,0,0.03);
+  --g1-bg-rgb: 248, 250, 252;
   --g1-grid: rgba(15,23,42,0.03);
   --g1-shadow: 0 4px 20px rgba(15,23,42,0.08);
   --g1-topbar: rgba(255,255,255,0.9);

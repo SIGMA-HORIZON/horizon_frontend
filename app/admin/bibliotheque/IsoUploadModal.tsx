@@ -125,17 +125,17 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
                         onDragOver={handleDragOver}
                         onDragLeave={handleDragLeave}
                         style={{
-                            border: `2px dashed ${isDragging ? '#6366f1' : file ? '#10B981' : 'rgba(255,255,255,0.1)'}`,
+                            border: `2px dashed ${isDragging ? 'var(--g1-accent)' : file ? '#10B981' : 'var(--g1-border)'}`,
                             borderRadius: '14px',
                             padding: '28px 20px',
                             textAlign: 'center',
                             cursor: isLocked ? 'default' : 'pointer',
                             transition: 'all 0.25s ease',
                             background: isDragging
-                                ? 'rgba(99,102,241,0.08)'
+                                ? 'rgba(var(--g1-accent-rgb), 0.1)'
                                 : file
                                     ? 'rgba(16,185,129,0.06)'
-                                    : 'rgba(255,255,255,0.02)',
+                                    : 'var(--g1-bg-alt)',
                         }}
                     >
                         <input
@@ -155,7 +155,7 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
                                     </svg>
                                 </div>
                                 <div style={{ textAlign: 'left' }}>
-                                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#F1F5F9' }}>{file.name}</div>
+                                    <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--g1-text)' }}>{file.name}</div>
                                     <div style={{ fontSize: '12px', color: '#10B981' }}>{formatSize(file.size)}</div>
                                 </div>
                                 {!isLocked && (
@@ -172,18 +172,18 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
                             </div>
                         ) : (
                             <>
-                                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(99,102,241,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="#6366f1" fill="none" strokeWidth="2">
+                                <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(var(--g1-accent-rgb), 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--g1-accent)" fill="none" strokeWidth="2">
                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                         <polyline points="17 8 12 3 7 8" />
                                         <line x1="12" y1="3" x2="12" y2="15" />
                                     </svg>
                                 </div>
-                                <p style={{ color: '#E2E8F0', fontWeight: 600, fontSize: '14px', margin: '0 0 4px' }}>
+                                <p style={{ color: 'var(--g1-text)', fontWeight: 600, fontSize: '14px', margin: '0 0 4px' }}>
                                     {isDragging ? 'Relâchez ici' : 'Glissez votre fichier ISO ici'}
                                 </p>
-                                <p style={{ color: '#475569', fontSize: '12px', margin: 0 }}>
-                                    ou <span style={{ color: '#6366f1', fontWeight: 600 }}>cliquez pour parcourir</span> — fichiers .iso uniquement
+                                <p style={{ color: 'var(--g1-muted)', fontSize: '12px', margin: 0 }}>
+                                    ou <span style={{ color: 'var(--g1-accent)', fontWeight: 600 }}>cliquez pour parcourir</span> — fichiers .iso uniquement
                                 </p>
                             </>
                         )}
@@ -247,7 +247,7 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                 <div>
                                     <label style={labelStyle}>Famille OS</label>
-                                    <select value={osFamily} onChange={e => setOsFamily(e.target.value)} style={{ ...inputStyle, background: '#0d1526' }}>
+                                    <select value={osFamily} onChange={e => setOsFamily(e.target.value)} style={{ ...inputStyle, background: 'var(--g1-bg-alt)' }}>
                                         <option value="LINUX">Linux</option>
                                         <option value="WINDOWS">Windows</option>
                                         <option value="BSD">BSD</option>
@@ -310,14 +310,14 @@ export default function IsoUploadModal({ onClose, onSuccess }: IsoUploadModalPro
 
 const labelStyle: React.CSSProperties = {
     display: 'block', fontSize: '12px', fontWeight: 600,
-    color: '#94A3B8', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em',
+    color: 'var(--g1-muted)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em',
 };
 
 const inputStyle: React.CSSProperties = {
     width: '100%', padding: '10px 14px',
-    background: 'rgba(255,255,255,0.04)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: '10px', color: '#F1F5F9', fontSize: '13px',
+    background: 'var(--g1-bg-alt)',
+    border: '1px solid var(--g1-border)',
+    borderRadius: '10px', color: 'var(--g1-text)', fontSize: '13px',
     outline: 'none', boxSizing: 'border-box',
     transition: 'border-color 0.2s',
 };

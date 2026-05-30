@@ -32,6 +32,11 @@ export default function VMDetails() {
     message: '',
     type: 'info'
   });
+  
+  const [extensionModal, setExtensionModal] = useState({
+    isOpen: false,
+    reason: ""
+  });
 
   // Polling for real-time usage stats
   useEffect(() => {
@@ -155,36 +160,7 @@ export default function VMDetails() {
             </div>
           </div>
           <button className="btn-extend" onClick={() => {
-            const reason = prompt("Pourquoi souhaitez-vous étendre la durée de votre session ?");
-            if (reason === null) return;
-            
-            setModalConfig({
-              isOpen: true,
-              title: "Demande d'extension",
-              message: "Envoi de la demande à l'administrateur...",
-              type: 'info',
-              showConfirm: false
-            });
-
-            vmService.requestExtension(vm.id, reason || "Prolongation demandée par l'utilisateur.")
-              .then(() => {
-                setModalConfig({
-                  isOpen: true,
-                  title: "Demande envoyée",
-                  message: "Votre demande a été transmise avec succès. L'administrateur recevra un email.",
-                  type: 'success',
-                  showConfirm: false
-                });
-              })
-              .catch(err => {
-                setModalConfig({
-                  isOpen: true,
-                  title: "Erreur",
-                  message: err.response?.data?.detail || "Impossible d'envoyer la demande.",
-                  type: 'danger',
-                  showConfirm: false
-                });
-              });
+            setExtensionModal({ isOpen: true, reason: "" });
           }}>
             <Icon name="reboot" />
             Étendre la durée
@@ -244,6 +220,60 @@ export default function VMDetails() {
         showConfirm={modalConfig.showConfirm}
       >
         {modalConfig.message}
+      </Modal>
+
+      {/* Extension Reason Modal */}
+      <Modal
+        isOpen={extensionModal.isOpen}
+        onClose={() => setExtensionModal({ ...extensionModal, isOpen: false })}
+        title="Prolongation de session"
+        type="info"
+        confirmLabel="Envoyer la demande"
+        showConfirm={true}
+        onConfirm={() => {
+          setExtensionModal({ ...extensionModal, isOpen: false });
+          setModalConfig({
+            isOpen: true,
+            title: "Demande d'extension",
+            message: "Envoi de la demande en cours...",
+            type: 'info',
+            showConfirm: false
+          });
+
+          vmService.requestExtension(vm.id, extensionModal.reason || "Prolongation demandée par l'utilisateur.")
+            .then(() => {
+              setModalConfig({
+                isOpen: true,
+                title: "Demande envoyée",
+                message: "Votre demande a été transmise avec succès. Un administrateur va l'étudier.",
+                type: 'success',
+                showConfirm: false
+              });
+            })
+            .catch(err => {
+              setModalConfig({
+                isOpen: true,
+                title: "Erreur",
+                message: err.response?.data?.detail || "Impossible d'envoyer la demande.",
+                type: 'danger',
+                showConfirm: false
+              });
+            });
+        }}
+      >
+        <div style={{ marginTop: '10px' }}>
+          <p style={{ fontSize: '13px', color: 'var(--g1-muted)', marginBottom: '12px' }}>
+            Expliquez brièvement pourquoi vous avez besoin de plus de temps sur cette machine.
+          </p>
+          <textarea
+            autoFocus
+            className="pm-input"
+            style={{ width: '100%', minHeight: '80px', padding: '12px', background: 'var(--g1-bg-alt)', borderRadius: '8px' }}
+            placeholder="Ex: Finalisation d'un calcul long, besoin pour un TP..."
+            value={extensionModal.reason}
+            onChange={(e) => setExtensionModal({ ...extensionModal, reason: e.target.value })}
+          />
+        </div>
       </Modal>
     </div>
   );

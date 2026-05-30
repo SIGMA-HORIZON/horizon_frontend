@@ -121,13 +121,13 @@ export default function OSBibliotheque() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: '8px',
                   padding: '9px 18px',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  color: 'white',
+                  background: 'var(--g1-nav)',
+                  border: '1px solid var(--g1-border)',
+                  color: 'var(--g1-text)',
                   borderRadius: '10px', fontSize: '13px', fontWeight: 600,
                   cursor: syncing ? 'not-allowed' : 'pointer',
                   transition: 'all 0.2s',
-                  opacity: syncing ? 0.5 : 1
+                  opacity: syncing ? 0.6 : 1
                 }}
               >
                 <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" fill="none" strokeWidth="2.5" className={syncing ? "spin" : ""}>
@@ -204,8 +204,8 @@ export default function OSBibliotheque() {
                 <line x1="8" y1="12" x2="16" y2="12" />
               </svg>
             </div>
-            <div style={{ flex: 1, fontSize: '13px', color: '#94A3B8', lineHeight: '1.5' }}>
-              Vous pouvez <strong style={{ color: '#C7D2FE' }}>uploader directement un fichier .iso</strong> vers le stockage partagé Proxmox.
+            <div style={{ flex: 1, fontSize: '13px', color: 'var(--g1-muted)', lineHeight: '1.5' }}>
+              Vous pouvez <strong style={{ color: 'var(--g1-accent)' }}>uploader directement un fichier .iso</strong> vers le stockage partagé Proxmox.
               L'ISO sera automatiquement référencée dans la base de données.
             </div>
             <button
