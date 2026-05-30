@@ -30,6 +30,10 @@ export const vmService = {
         const response = await api.post(`/vms/${id}/reboot`);
         return response.data;
     },
+    async requestExtension(id, reason = '') {
+        const response = await api.post(`/vms/${id}/request-extension`, { reason });
+        return response.data;
+    },
 
     async pauseVm(id) {
         const response = await api.post(`/vms/${id}/pause`);

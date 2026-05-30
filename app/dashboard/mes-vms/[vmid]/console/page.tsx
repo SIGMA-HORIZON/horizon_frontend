@@ -46,7 +46,9 @@ export default function ConsoleViewer() {
             // Get the JWT token from localStorage
             const token = localStorage.getItem('horizon_token') || '';
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
-            const WS_BASE_URL = API_BASE_URL.replace('http', 'ws');
+            const WS_BASE_URL = (typeof API_BASE_URL === 'string') 
+                ? API_BASE_URL.replace('http', 'ws') 
+                : 'ws://localhost:8000/api/v1';
 
             // Fetch the VNC ticket and port from the backend
             const response = await fetch(`${API_BASE_URL}/vms/${vmid}/console`, {
