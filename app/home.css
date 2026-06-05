@@ -27,17 +27,18 @@
   --bg-deep:    #F8FAFC;
   --bg-card:    #FFFFFF;
   --bg-input:   #F1F5F9;
-  --bg-hover:   #F1F5F9;
-  --text-white: #000000;
-  --text-muted: #0f172a;
-  --text-dim:   #334155;
-  --border:     rgba(15, 23, 42, 0.1);
-  --shadow-lg:  0 10px 40px rgba(15, 23, 42, 0.08);
-  --cyan-glow:  rgba(0, 180, 216, 0.08);
+  --bg-hover:   #E2E8F0;
+  --text-white: #0F172A;
+  --text-muted: #475569;
+  --text-dim:   #64748B;
+  --border:     rgba(15, 23, 42, 0.12);
+  --border-h:   rgba(37, 99, 235, 0.45);
+  --shadow-lg:  0 16px 48px rgba(15, 23, 42, 0.1);
+  --cyan-glow:  rgba(0, 180, 216, 0.1);
   --blue-glow:  rgba(37, 99, 235, 0.08);
-  --nav-bg:     rgba(248, 250, 252, 0.8);
+  --nav-bg:     rgba(255, 255, 255, 0.92);
   --footer-bg:  #F1F5F9;
-  --hero-overlay: rgba(248, 250, 252, 0.75);
+  --hero-overlay: rgba(248, 250, 252, 0.82);
 }
 
 html { scroll-behavior: smooth; }
@@ -69,6 +70,19 @@ html { scroll-behavior: smooth; }
     radial-gradient(ellipse 45% 55% at 90% 100%, rgba(0,180,216,.16) 0%, transparent 60%),
     radial-gradient(ellipse 30% 40% at 60% 40%, rgba(21,101,192,.08) 0%, transparent 60%);
   pointer-events: none; z-index: 0;
+}
+
+.light-theme .home-theme::before {
+  background-image:
+    linear-gradient(rgba(30,136,229,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30,136,229,.05) 1px, transparent 1px);
+}
+
+.light-theme .home-theme::after {
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 0%, rgba(21,101,192,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 45% 55% at 90% 100%, rgba(0,180,216,.06) 0%, transparent 60%);
+  opacity: 0.85;
 }
 
 /* ── NAV ── */
@@ -158,7 +172,15 @@ nav {
 }
 
 .nav-cta {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 12px;
+}
+
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .nav-cta { gap: 8px; }
+  .btn-ghost-sm { padding: 7px 12px; font-size: 12px; }
+  .btn-primary-sm { padding: 7px 14px; font-size: 12px; }
 }
 
 .btn-ghost-sm {

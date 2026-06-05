@@ -17,6 +17,7 @@ export interface VM {
   lease_start: string;
   lease_end: string;
   ip_address?: string;
+  vlan_id?: number;
   ssh_public_key?: string;
   // UI helpers (calculated or mocked)
   cpu_usage?: number;

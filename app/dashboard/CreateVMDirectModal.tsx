@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/admin';
 import { vmService } from '../../services/vms';
+import NetworkChoice, { NetworkGroup } from '@/components/NetworkChoice';
 
 interface CreateVMDirectModalProps {
     isOpen: boolean;
@@ -10,7 +11,6 @@ interface CreateVMDirectModalProps {
 }
 
 export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: CreateVMDirectModalProps) {
-    const [vmid, setVmid] = useState<number>(100);
     const [isoFilename, setIsoFilename] = useState('');
     const [availableIsos, setAvailableIsos] = useState<any[]>([]);
     const [name, setName] = useState('');
@@ -20,17 +20,27 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
     const [sessionHours, setSessionHours] = useState(24);
     const [isLoading, setIsLoading] = useState(false);
     const [sshPublicKey, setSshPublicKey] = useState('');
+    const [sharedNetwork, setSharedNetwork] = useState(true);
+    const [sharedVlanId, setSharedVlanId] = useState<number | null>(null);
+    const [networkGroups, setNetworkGroups] = useState<NetworkGroup[]>([]);
     const [error, setError] = useState('');
 
     useEffect(() => {
         if (isOpen) {
             const fetchData = async () => {
                 try {
-                    const isosData = await vmService.listIsos();
+                    const [isosData, quotaData] = await Promise.all([
+                        vmService.listIsos(),
+                        vmService.getQuota(),
+                    ]);
                     setAvailableIsos(isosData.items || []);
                     if (isosData.items?.length > 0) {
                         setIsoFilename(isosData.items[0].filename);
                     }
+                    const groups: NetworkGroup[] = quotaData.network_groups || [];
+                    setNetworkGroups(groups);
+                    setSharedNetwork(true);
+                    setSharedVlanId(groups.length > 0 ? groups[0].vlan_id : null);
                 } catch (err) {
                     console.error("Failed to fetch direct creation data:", err);
                     setError("Impossible de charger les données nécessaires (ISO).");
@@ -49,7 +59,6 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
 
         try {
             await vmService.proxmoxCreateVm({
-                vmid: Number(vmid),
                 iso_filename: isoFilename,
                 name,
                 vcpu: Number(vcpu),
@@ -57,7 +66,9 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
                 storage_gb: Number(storageGb),
                 net0: "virtio,bridge=vmbr0",
                 ssh_public_key: sshPublicKey || null,
-                session_hours: Number(sessionHours)
+                session_hours: Number(sessionHours),
+                shared_network: sharedNetwork,
+                shared_vlan_id: sharedNetwork ? sharedVlanId : null,
             });
 
             onClose();
@@ -90,15 +101,10 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
                         </div>
                     )}
 
-                    <div style={rowStyle}>
-                        <div className="form-group" style={{ ...formGroupStyle, flex: 1 }}>
-                            <label style={labelStyle}>VMID</label>
-                            <input type="number" style={inputStyle} value={vmid} onChange={e => setVmid(Number(e.target.value))} required min="100" disabled={isLoading} />
-                        </div>
-                        <div className="form-group" style={{ ...formGroupStyle, flex: 1 }}>
-                            <label style={labelStyle}>Nom de la VM</label>
-                            <input type="text" style={inputStyle} value={name} onChange={e => setName(e.target.value)} required placeholder="vm-direct-01" disabled={isLoading} />
-                        </div>
+                    <div className="form-group" style={formGroupStyle}>
+                        <label style={labelStyle}>Nom de la VM</label>
+                        <input type="text" style={inputStyle} value={name} onChange={e => setName(e.target.value)} required placeholder="vm-direct-01" disabled={isLoading} />
+                        <p style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Le VMID Proxmox sera attribué automatiquement.</p>
                     </div>
 
                     <div className="form-group" style={formGroupStyle}>
@@ -157,6 +163,22 @@ export default function CreateVMDirectModal({ isOpen, onClose, onSuccess }: Crea
                             required 
                             min="1" 
                             disabled={isLoading} 
+                        />
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '16px', marginBottom: '16px' }}>
+                        <span style={sectionTitleStyle}>Réseau</span>
+                        <div style={sectionDividerStyle}></div>
+                    </div>
+
+                    <div className="form-group" style={formGroupStyle}>
+                        <NetworkChoice
+                            sharedNetwork={sharedNetwork}
+                            sharedVlanId={sharedVlanId}
+                            networkGroups={networkGroups}
+                            onSharedNetworkChange={setSharedNetwork}
+                            onSharedVlanIdChange={setSharedVlanId}
+                            disabled={isLoading}
                         />
                     </div>
 

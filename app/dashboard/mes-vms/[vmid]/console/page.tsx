@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Monitor, RefreshCw } from 'lucide-react';
+import { apiBaseToWsUrl } from '@/services/api';
 
 export default function ConsoleViewer() {
     const params = useParams();
@@ -46,9 +47,7 @@ export default function ConsoleViewer() {
             // Get the JWT token from localStorage
             const token = localStorage.getItem('horizon_token') || '';
             const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
-            const WS_BASE_URL = (typeof API_BASE_URL === 'string') 
-                ? API_BASE_URL.replace('http', 'ws') 
-                : 'ws://localhost:8000/api/v1';
+            const WS_BASE_URL = apiBaseToWsUrl(API_BASE_URL);
 
             // Fetch the VNC ticket and port from the backend
             const response = await fetch(`${API_BASE_URL}/vms/${vmid}/console`, {
@@ -73,7 +72,7 @@ export default function ConsoleViewer() {
 
             // Connect to our backend WebSocket proxy
             const encodedTicket = encodeURIComponent(ticket);
-            const wsUrl = `${WS_BASE_URL}/vms/vnc/${vmid}?port=${port}&ticket=${encodedTicket}`;
+            const wsUrl = `${WS_BASE_URL}/vms/vnc/${vmid}?port=${port}&ticket=${encodedTicket}&token=${encodeURIComponent(token)}`;
             console.log(`Connecting to VNC at: ${wsUrl}`);
 
             setStatus('Connecting to console...');

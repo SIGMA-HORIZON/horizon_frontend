@@ -186,6 +186,7 @@ export default function VMDetails() {
           <div className="details-card-body">
             <EditableRow label="Nom de la machine" value={vm.name} field="name" editingField={editingField} editValue={editValue} onEdit={handleEdit} onSave={saveEdit} onChange={setEditValue} />
             <div className="detail-row"><span className="detail-label">OS</span><span className="detail-value">{vm.os_name || 'Inconnu'}</span></div>
+            <div className="detail-row"><span className="detail-label">Réseau (VLAN)</span><span className="detail-value">{vm.vlan_id != null ? `VLAN ${vm.vlan_id}` : '—'}</span></div>
             <EditableRow label="vCPU" value={`${vm.vcpu} Cores`} field="cpu" editingField={editingField} editValue={editValue} onEdit={handleEdit} onSave={saveEdit} onChange={setEditValue} type="number" />
             <EditableRow label="RAM" value={`${vm.ram_gb} Go`} field="ram" editingField={editingField} editValue={editValue} onEdit={handleEdit} onSave={saveEdit} onChange={setEditValue} type="number" />
             <div className="detail-row"><span className="detail-label">Créée le</span><span className="detail-value">{new Date(vm.lease_start).toLocaleDateString()}</span></div>

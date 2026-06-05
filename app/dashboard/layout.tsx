@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { VMProvider, useVMs } from './VMContext';
-import { ThemeProvider, useTheme } from '../../context/ThemeContext';
 import { ThemeToggle } from '../../components/ThemeToggle';
 import './dashboard.css';
 import '../home.css';
@@ -71,7 +70,6 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
 
   const { user, logout } = useAuth();
   const { vms, refreshVMs, clusterStatus, refreshClusterStatus } = useVMs();
-  const { theme } = useTheme();
 
   useEffect(() => {
     if (refreshClusterStatus) {
@@ -92,7 +90,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className={`dashboard-theme ${theme === 'light' ? 'light-theme' : ''}`}>
+    <div className="dashboard-theme">
       <div className="shell">
         <div className="sidebar">
 

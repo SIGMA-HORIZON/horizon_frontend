@@ -5,6 +5,7 @@ import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 import { Icon } from '@/components/Icon';
+import { apiBaseToWsUrl } from '@/services/api';
 
 interface SSHTerminalProps {
     vmid: string;
@@ -51,8 +52,8 @@ export default function SSHTerminal({ vmid, onClose }: SSHTerminalProps) {
         // WebSocket connection
         const token = localStorage.getItem('horizon_token');
         const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000/api/v1';
-        const wsUrl = API_URL.replace('http', 'ws') + `/vms/ssh/${vmid}?token=${token}`;
-        
+        const wsUrl = apiBaseToWsUrl(API_URL) + `/vms/ssh/${vmid}?token=${encodeURIComponent(token || '')}`;
+
         const ws = new WebSocket(wsUrl);
         socketRef.current = ws;
 

@@ -20,12 +20,18 @@
   --bg-sidebar: #F1F5F9;
   --bg-card:    #FFFFFF;
   --bg-hover:   #F8FAFC;
-  --text:       #000000;
-  --muted:      #0f172a;
-  --dim:        #334155;
-  --border:     rgba(15, 23, 42, 0.1);
-  --border-m:   rgba(15, 23, 42, 0.2);
+  --text:       #0F172A;
+  --muted:      #475569;
+  --dim:        #64748B;
+  --border:     rgba(15, 23, 42, 0.12);
+  --border-m:   rgba(15, 23, 42, 0.22);
 }
+
+.light-theme .alert-warn { color: #B45309; background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.25); }
+.light-theme .alert-danger { color: #B91C1C; background: rgba(239, 68, 68, 0.08); }
+.light-theme .level-1 { color: #B45309; }
+.light-theme .level-2 { color: #C2410C; }
+.light-theme .level-3 { color: #B91C1C; }
 
 .cgu-page-wrap {
   display: grid;

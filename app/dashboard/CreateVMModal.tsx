@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useVMs } from './VMContext';
 import { vmService } from '@/services/vms';
+import NetworkChoice, { NetworkGroup } from '@/components/NetworkChoice';
 
 interface CreateVMModalProps {
   isOpen: boolean;
@@ -22,23 +23,33 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
   const [sessionHours, setSessionHours] = useState(48);
   const [sshKey, setSshKey] = useState('');
   const [description, setDescription] = useState('');
+  const [sharedNetwork, setSharedNetwork] = useState(true);
+  const [sharedVlanId, setSharedVlanId] = useState<number | null>(null);
+  const [networkGroups, setNetworkGroups] = useState<NetworkGroup[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
-      const fetchIsos = async () => {
+      const fetchData = async () => {
         try {
-          const data = await vmService.listIsos();
-          setAvailableIsos(data.items || []);
-          if (data.items?.length > 0) {
-            setOs(data.items[0].id);
+          const [isoData, quotaData] = await Promise.all([
+            vmService.listIsos(),
+            vmService.getQuota(),
+          ]);
+          setAvailableIsos(isoData.items || []);
+          if (isoData.items?.length > 0) {
+            setOs(isoData.items[0].id);
           }
+          const groups: NetworkGroup[] = quotaData.network_groups || [];
+          setNetworkGroups(groups);
+          setSharedNetwork(true);
+          setSharedVlanId(groups.length > 0 ? groups[0].vlan_id : null);
         } catch (err) {
           console.error("Failed to fetch available ISOs:", err);
         }
       };
-      fetchIsos();
+      fetchData();
     }
   }, [isOpen]);
 
@@ -58,7 +69,9 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
         storage: storage,
         session_hours: sessionHours,
         ssh_public_key: sshKey,
-        description: description
+        description: description,
+        shared_network: sharedNetwork,
+        shared_vlan_id: sharedNetwork ? sharedVlanId : null,
       });
 
       // Reset form
@@ -70,6 +83,8 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
       setSessionHours(48);
       setSshKey('');
       setDescription('');
+      setSharedNetwork(true);
+      setSharedVlanId(null);
       onClose();
 
       router.push('/dashboard/mes-vms');
@@ -159,7 +174,23 @@ export default function CreateVMModal({ isOpen, onClose }: CreateVMModalProps) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '32px', marginBottom: '20px' }}>
-            <span style={stepNumStyle}>4</span> <span style={stepTextStyle}>Accès & Sécurité</span>
+            <span style={stepNumStyle}>4</span> <span style={stepTextStyle}>Réseau</span>
+            <div style={stepDividerStyle}></div>
+          </div>
+
+          <div className="form-group" style={formGroupStyle}>
+            <NetworkChoice
+              sharedNetwork={sharedNetwork}
+              sharedVlanId={sharedVlanId}
+              networkGroups={networkGroups}
+              onSharedNetworkChange={setSharedNetwork}
+              onSharedVlanIdChange={setSharedVlanId}
+              disabled={isLoading}
+            />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '32px', marginBottom: '20px' }}>
+            <span style={stepNumStyle}>5</span> <span style={stepTextStyle}>Accès & Sécurité</span>
             <div style={stepDividerStyle}></div>
           </div>
 

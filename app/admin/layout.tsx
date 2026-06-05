@@ -106,13 +106,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               Rechercher (Utilisateur, IP, VM)...
             </div>
             <div className="topbar-right">
+              <ThemeToggle />
               <div className={`status-pill ${clusterOnline === false ? 'offline' : ''}`} title={clusterStats ? `${clusterStats.up}/${clusterStats.total} nœuds en ligne` : ''}>
                 <div className={`status-dot ${clusterOnline === false ? 'offline' : ''}`}></div>
                 {clusterOnline === null ? 'Vérification...' : 
                  clusterOnline ? `Cluster en ligne ${clusterStats ? `(${clusterStats.up}/${clusterStats.total})` : ''}` : 
                  'Cluster hors ligne'}
               </div>
-              <ThemeToggle />
               <button className="btn-ghost">Aide</button>
             </div>
           </div>
