@@ -27,13 +27,21 @@ export default function ConsoleViewer() {
         try {
             setStatus('Loading VNC client...');
 
-            // Dynamically import noVNC (we downgraded to 1.4.0 to fix webpack issues)
-            const noVncModule: any = await import('@novnc/novnc/core/rfb');
+            // Workaround for "exports is not defined" in browser CommonJS module
+            if (typeof window !== 'undefined') {
+                (window as any).exports = {};
+                (window as any).module = { exports: {} };
+            }
+
+            // Dynamically import noVNC
+            const noVncModule: any = await import('@novnc/novnc/lib/rfb');
             
             // Handle different export formats
             let RFBConstructor;
             if (noVncModule.default) {
                 RFBConstructor = noVncModule.default.default || noVncModule.default;
+            } else if ((window as any).module?.exports) {
+                RFBConstructor = (window as any).module.exports.default || (window as any).module.exports;
             } else {
                 RFBConstructor = noVncModule;
             }

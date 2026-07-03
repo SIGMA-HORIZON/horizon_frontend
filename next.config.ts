@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Allow cross-origin dev requests from the server IP
-  allowedDevOrigins: ["http://192.168.123.100:3010"],
+  allowedDevOrigins: ["http://192.168.123.100:3010", "http://192.168.1.175:3010"],
   
   transpilePackages: ["@novnc/novnc"],
 
@@ -16,13 +16,6 @@ const nextConfig: NextConfig = {
       ...(config.experiments || {}),
       topLevelAwait: true,
     };
-
-    // Force Webpack to parse noVNC as ECMAScript Module so top-level await is allowed
-    config.module.rules.push({
-      test: /\.js$/,
-      include: /node_modules\/@novnc\/novnc/,
-      type: "javascript/esm"
-    });
 
     return config;
   },
