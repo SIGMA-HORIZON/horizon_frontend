@@ -16,9 +16,9 @@ export default function PrepareTemplateModal({ onClose, onSuccess, availableIsos
     // Form fields
     const [vmid, setVmid] = useState<number>(9100);
     const [node, setNode] = useState('');
-    const [storage, setStorage] = useState('stockage.ceph');
+    const [storage, setStorage] = useState('');
     const [isoFilename, setIsoFilename] = useState('');
-    const [isoStorage, setIsoStorage] = useState('stockage.ceph');
+    const [isoStorage, setIsoStorage] = useState('');
     const [name, setName] = useState('template-prepare');
     const [vcpu, setVcpu] = useState(2);
     const [ramMb, setRamMb] = useState(2048);

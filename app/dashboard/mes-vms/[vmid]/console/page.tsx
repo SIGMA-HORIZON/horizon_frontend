@@ -91,7 +91,9 @@ export default function ConsoleViewer() {
                 wsProtocols: ['binary'],
                 shared: true,
                 view_only: false,
-                resizeSession: false
+                resizeSession: false,
+                scaleViewport: true,
+                clipViewport: false
             });
 
             rfbRef.current = rfb;
@@ -219,12 +221,15 @@ export default function ConsoleViewer() {
                 <div
                     ref={containerRef}
                     style={{
-                        width: '100%',
-                        height: '100%',
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
                         display: 'flex',
-                        position: 'relative',
                         alignItems: 'center',
-                        justifyContent: 'center'
+                        justifyContent: 'center',
+                        overflow: 'hidden'
                     }}
                 />
                 {status !== 'Connected' && (
